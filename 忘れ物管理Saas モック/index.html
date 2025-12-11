@@ -1,0 +1,1641 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>落とし物クラウド（仮）モック</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+    :root {
+      --primary: #1C335C;
+      --primary-hover: #132544;
+      --primary-light: #E6EAF3;
+      --secondary: #0E7490;
+      --bg: #F9FAFB;
+      --card: #FFFFFF;
+      --muted: #6B7280;
+      --muted-strong: #4B5563;
+      --heading: #111827;
+      --border: #E5E7EB;
+      --hover: #F3F4F6;
+      --warning: #F59E0B;
+      --danger: #DC2626;
+      --neutral: #6B7280;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #F9FAFB 0%, #F3F4F6 100%);
+      color: var(--muted-strong);
+      line-height: 1.5;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='%23E5E7EB' fill-opacity='0.25'%3E%3Ccircle cx='10' cy='10' r='1'/%3E%3Ccircle cx='80' cy='40' r='1'/%3E%3Ccircle cx='140' cy='90' r='1'/%3E%3Ccircle cx='30' cy='120' r='1'/%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: 0.01em;
+    }
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.22);
+    }
+
+    .facility {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #EEF2FF;
+      color: #4338CA;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .user-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+      border: 1px solid #D1D5DB;
+      display: grid;
+      place-items: center;
+      color: var(--heading);
+      font-weight: 700;
+    }
+
+    main {
+      width: min(1320px, 94vw);
+      margin: 24px auto 80px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .section {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      padding: 18px 20px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    h1, h2, h3, h4 {
+      margin: 0;
+      color: var(--heading);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    h1 { font-size: 18px; font-weight: 600; }
+    h2 { font-size: 16px; font-weight: 600; }
+    h3 { font-size: 14px; font-weight: 600; }
+
+    p { margin: 0; color: var(--muted); }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      padding: 12px 16px;
+      box-shadow: 0 4px 16px rgba(28, 51, 93, 0.28);
+    }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-outline {
+      background: white;
+      color: #344054;
+      border: 1px solid #CBD5E1;
+      padding: 11px 15px;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-strong);
+      padding: 10px 12px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+    .summary {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    .card:hover { box-shadow: 0 6px 16px rgba(15,23,42,0.08); transform: translateY(-1px); border-color: #D7E3FF; }
+    .card small { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+    .card .value { font-size: 28px; font-weight: 800; color: var(--heading); }
+    .card .chip {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: #F1F5F9;
+      color: #334155;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .card .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .search-area {
+      display: grid;
+      gap: 12px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .search-area::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px at 20% 20%, rgba(37,99,235,0.06), transparent 60%),
+                  radial-gradient(500px at 80% 10%, rgba(14,165,233,0.05), transparent 55%);
+      pointer-events: none;
+    }
+    .search-row {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+    .input {
+      position: relative;
+    }
+    .input input, .input select, .input textarea {
+      width: 100%;
+      padding: 12px 12px 12px 38px;
+      border: 1px solid #D1D5DB;
+      border-radius: 12px;
+      background: white;
+      color: var(--muted-strong);
+      font-size: 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .input select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%236B7280' d='M2 4l5 6 5-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .input input:focus, .input select:focus, .input textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      transform: translateY(-1px);
+    }
+    .input .icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      border: 1px solid #D5D7DD;
+      background: #F6F7FA;
+      color: #374151;
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pill.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(28, 51, 93, 0.2);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #EEF2FF;
+      color: #4338CA;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .filter-chip button {
+      background: transparent;
+      border: none;
+      color: #4338CA;
+      font-size: 14px;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+    thead {
+      background: #F3F4F6;
+      color: var(--muted-strong);
+      font-weight: 600;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.12s ease;
+      opacity: 0;
+      animation: fadeRow 0.35s ease forwards;
+    }
+    tbody tr:hover { background: #F5F7FA; }
+    tbody tr.selected-row { background: #F3F6FF; box-shadow: inset 2px 0 0 var(--primary); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, #E0EAFF, #F9FAFB);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .status-stock { background: rgba(37, 99, 235, 0.1); color: var(--primary); }
+    .status-warning { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+    .status-danger { background: rgba(220, 38, 38, 0.12); color: var(--danger); }
+    .status-complete { background: rgba(107, 114, 128, 0.16); color: var(--neutral); }
+
+    .table-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 6px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .detail-panel {
+      position: fixed;
+      right: -420px;
+      top: 0;
+      width: 360px;
+      height: 100vh;
+      background: white;
+      border-left: 1px solid var(--border);
+      box-shadow: -12px 0 30px rgba(15, 23, 42, 0.16);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      transition: right 0.28s ease;
+      z-index: 40;
+    }
+    .detail-panel.open { right: 0; }
+    .detail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .detail-id { font-weight: 800; font-size: 20px; color: var(--heading); }
+    .detail-photo {
+      width: 100%;
+      border-radius: 12px;
+      height: 200px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #E0EAFF, #F9FAFB);
+      border: 1px solid var(--border);
+    }
+    .detail-grid { display: grid; gap: 10px; font-size: 14px; }
+    .detail-section { border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
+    .detail-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .detail-section h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); letter-spacing: 0.01em; }
+    .detail-row { display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; padding: 4px 0; }
+    .detail-label { color: #374151; font-weight: 700; font-size: 12.5px; }
+    .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .match-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 2.1fr 1.1fr;
+      gap: 16px;
+    }
+    .match-left, .match-center, .match-right {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 6px 14px rgba(15,23,42,0.05);
+    }
+    .match-left textarea, .match-left input, .match-left select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--muted-strong);
+    }
+    .match-left textarea { min-height: 74px; resize: vertical; }
+    .match-center { display: grid; gap: 12px; position: relative; }
+    .match-center::before, .match-center::after {
+      content: '';
+      position: sticky;
+      left: 0; right: 0;
+      height: 18px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .match-center::before {
+      top: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), transparent);
+    }
+    .match-center::after {
+      bottom: -1px;
+      background: linear-gradient(0deg, rgba(255,255,255,0.85), transparent);
+    }
+    .match-meta { color: var(--muted-strong); font-size: 13px; font-weight: 700; display:flex; justify-content:space-between; align-items:center; }
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      max-height: 640px;
+      overflow-y: auto;
+      padding: 4px 2px 12px;
+    }
+    .match-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      display: grid;
+      gap: 8px;
+    }
+    .match-card:hover { transform: translateY(-2px); border-color: #CBD5E1; box-shadow: 0 8px 16px rgba(15,23,42,0.07); }
+    .match-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #E5E7EB;
+    }
+    .match-card .body { padding: 8px 10px 10px; display: grid; gap: 6px; }
+    .match-card .title { font-weight: 800; color: var(--heading); }
+    .match-card .sub { color: var(--muted); font-size: 12px; }
+    .match-card .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .match-card .tag { background: #E5E7EB; color: #374151; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .match-card.selected { border-color: var(--primary); box-shadow: 0 10px 20px rgba(28,51,93,0.18); transform: translateY(-2px); }
+    .match-card.selected .tag.selected-badge { background: rgba(28,51,93,0.1); color: var(--primary); border: 1px solid #C8D1E2; }
+    .match-detail {
+      display: grid;
+      gap: 10px;
+    }
+    .match-photo-wrap { background: #F5F7FA; border: 1px solid var(--border); border-radius: 10px; padding: 8px; }
+    .match-photo { width: 100%; border-radius: 8px; object-fit: cover; height: 260px; }
+    .match-detail-body { display: grid; gap: 6px; }
+
+    .toast {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      color: var(--heading);
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .fade-in {
+      animation: fadeUp 0.35s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeRow {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mood {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, #FFFFFF, #F5F6FA);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      display: grid;
+      gap: 8px;
+      max-height: 180px;
+    }
+    .mood h2 { color: #0F172A; }
+    .mood p { color: #0F172A; }
+    .rail {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 160px;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px;
+      scrollbar-width: none;
+    }
+    .rail::-webkit-scrollbar { display: none; }
+    .tile {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 120px;
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.2);
+      transform: translateY(0);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tile img { width: 100%; height: 100%; object-fit: cover; }
+    .tile:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 24px 44px rgba(15, 23, 42, 0.28); }
+    .tile .tag {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      backdrop-filter: blur(4px);
+    }
+
+    .tabs {
+      display: inline-flex;
+      border-bottom: 1px solid var(--border);
+      gap: 4px;
+      padding-bottom: 4px;
+    }
+    .tab {
+      padding: 11px 16px 9px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #6B7280;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+
+    .login-preview {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .login-card {
+      width: min(380px, 90%);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+    }
+    .login-card h3 { text-align: center; }
+    .login-card .input input { padding-left: 12px; }
+    .subtle-link { color: var(--muted); font-size: 13px; text-align: center; }
+
+    .phone {
+      width: 360px;
+      max-width: 100%;
+      margin: 0 auto;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: #0B1B2E;
+      padding: 12px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+    }
+    .phone .screen {
+      background: #F9FAFB;
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 520px;
+      display: grid;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .mobile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      color: var(--heading);
+      font-size: 14px;
+    }
+    .stepper {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    .dot.active { background: var(--primary); box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14); }
+    .mobile-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .mobile-primary {
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 700;
+      box-shadow: 0 12px 32px rgba(37, 99, 235, 0.3);
+    }
+    .mobile-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 700;
+    }
+    .mobile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .mobile-option {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--muted-strong);
+      transition: all 0.15s ease;
+    }
+    .mobile-option.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
+    }
+    .mobile-bottom {
+      position: sticky;
+      bottom: 0;
+      padding: 10px;
+      background: linear-gradient(180deg, rgba(249, 250, 251, 0.6), #F9FAFB);
+      border-radius: 12px;
+    }
+
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #0F172A;
+      color: white;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .highlight {
+      background: linear-gradient(120deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.12));
+      border: 1px dashed rgba(37, 99, 235, 0.4);
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    footer {
+      margin: 16px auto 40px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      .search-row { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+      .two-col { grid-template-columns: 1fr; }
+      .login-preview { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .topbar { flex-wrap: wrap; gap: 10px; }
+      main { width: 94vw; margin-top: 12px; }
+      h1 { font-size: 18px; }
+      .detail-panel { width: 94vw; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">LC</div>
+      <div>
+        <div>落とし物クラウド（仮）</div>
+        <small style="color: var(--muted); font-weight:600;">旅館バックヤードの相棒</small>
+      </div>
+    </div>
+    <div class="facility">花月旅館・本館 ▼</div>
+    <div class="user-meta">
+      <span>青木（フロント）</span>
+      <div class="avatar">A</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h1>落とし物管理</h1>
+          <p>登録・検索・保管状況の確認ができます。</p>
+        </div>
+        <div class="actions">
+          <button class="btn-outline" id="exportBtn">CSV出力</button>
+          <button class="btn-primary" id="addBtn">＋ 落とし物を登録</button>
+        </div>
+      </div>
+
+      <div class="tabs" id="mainTabSwitch">
+        <div class="tab active" data-tab="list">一覧</div>
+        <div class="tab" data-tab="deadline">期限管理</div>
+        <div class="tab" data-tab="settings">設定ショートカット</div>
+        <div class="tab" data-tab="match">照合ビュー（写真で探す）</div>
+      </div>
+
+      <div class="grid summary">
+        <div class="card clickable" data-filter="today">
+          <small>今日登録</small>
+          <div class="value" id="todayCount">8件</div>
+          <span class="chip">＋12%</span>
+          <div class="hint">08:30に清掃担当が4件追加</div>
+        </div>
+        <div class="card clickable" data-filter="stock">
+          <small>保管中</small>
+          <div class="value" id="stockCount">34件</div>
+          <span class="chip">倉庫A/B</span>
+          <div class="hint">フロント棚と倉庫に振り分け済み</div>
+        </div>
+        <div class="card clickable" data-filter="warning">
+          <small>期限間近（7日以内）</small>
+          <div class="value" id="warningCount">4件</div>
+          <span class="chip">優先処理</span>
+          <div class="hint">廃棄候補を確認しましょう</div>
+        </div>
+        <div class="card clickable" data-filter="expired">
+          <small>期限切れ</small>
+          <div class="value" id="expiredCount">2件</div>
+          <span class="chip" style="background: rgba(220, 38, 38, 0.12); color: var(--danger);">処理待ち</span>
+          <div class="hint">警察 or 廃棄手配が必要です</div>
+        </div>
+      </div>
+
+      <div class="search-area">
+        <div class="search-row">
+          <div class="field">
+            <div class="label">フリーワード</div>
+            <div class="input">
+              <span class="icon">🔍</span>
+              <input id="keyword" type="text" placeholder="色・ブランド・特徴・部屋番号など">
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">日付モード</div>
+            <div class="pills" id="dateMode">
+              <div class="pill active" data-mode="found">発見日</div>
+              <div class="pill" data-mode="stay">宿泊日</div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">日付</div>
+            <div class="pills" id="dateQuick">
+              <div class="pill active" data-range="today">今日</div>
+              <div class="pill" data-range="yesterday">昨日</div>
+              <div class="pill" data-range="3days">3日間</div>
+              <div class="pill" data-range="week">1週間</div>
+              <div class="pill" data-range="custom">カスタム</div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">カテゴリ</div>
+            <div class="input">
+              <span class="icon">🗂</span>
+              <select id="categorySelect">
+                <option value="all">すべて</option>
+                <option>財布</option>
+                <option>カバン</option>
+                <option>スマートフォン</option>
+                <option>充電器</option>
+                <option>鍵</option>
+                <option>衣類</option>
+                <option>ファッション小物</option>
+                <option>メガネ</option>
+                <option>化粧品</option>
+                <option>靴</option>
+                <option>傘</option>
+                <option>その他</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">ステータス</div>
+            <div class="pills" id="statusSelect">
+              <div class="pill active" data-status="保管中">保管中</div>
+              <div class="pill" data-status="期限間近">期限間近</div>
+              <div class="pill" data-status="期限切れ">期限切れ</div>
+              <div class="pill" data-status="返却済">返却済</div>
+            </div>
+          </div>
+          <div class="field" style="align-self:flex-end;">
+            <button class="btn-ghost" id="clearFilters">条件をクリア</button>
+          </div>
+        </div>
+        <div class="label" style="font-weight:700; color: var(--muted-strong);">現在の条件</div>
+        <div class="filters" id="filterChips"></div>
+        <div style="height:1px; background: var(--border);"></div>
+      </div>
+
+      <div class="table-meta">
+        <div id="tableMetaText">全 42件 / 表示 10件</div>
+      </div>
+
+      <div id="viewList">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>写真</th>
+                <th>管理番号</th>
+                <th>カテゴリ</th>
+                <th>発見日</th>
+                <th>宿泊日</th>
+                <th>拾得場所</th>
+                <th>部屋</th>
+                <th>保管場所</th>
+                <th>ステータス</th>
+                <th>保管期限</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="viewDeadline" style="display:none;">
+        <div id="deadlineList" class="grid" style="margin-top:12px;"></div>
+      </div>
+
+      <div id="viewSettings" style="display:none;">
+        <div class="settings-grid">
+          <div class="card">
+            <small>施設設定</small>
+            <div class="value" style="font-size:18px;">倉庫A/B・フロント棚</div>
+            <div class="hint">保管場所・保管期限ルールの管理</div>
+            <button class="btn-outline">編集する</button>
+          </div>
+          <div class="card">
+            <small>マスタ設定</small>
+            <div class="value" style="font-size:18px;">カテゴリ / 拾得場所</div>
+            <div class="hint">運用に合わせて項目を最適化</div>
+            <button class="btn-outline">開く</button>
+          </div>
+          <div class="card">
+            <small>ユーザー</small>
+            <div class="value" style="font-size:18px;">フロント 8名</div>
+            <div class="hint">役割と権限をシンプルに設定</div>
+            <button class="btn-outline">確認</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="viewMatch" style="display:none; margin-top:12px;">
+        <div class="match-layout">
+          <div class="match-left">
+            <h3 style="margin:0 0 8px; font-size:16px; color:var(--heading);">聞き取りメモ</h3>
+            <div class="field">
+              <div class="label">お客様名（任意）</div>
+              <input id="matchName" type="text" placeholder="山田様 など">
+            </div>
+            <div class="field">
+              <div class="label">宿泊日（From〜To）</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <input id="matchStayFrom" type="date">
+                <input id="matchStayTo" type="date">
+              </div>
+            </div>
+            <div class="field">
+              <div class="label">部屋番号</div>
+              <input id="matchRoom" type="text" placeholder="例）301号室 など">
+              <div class="pills" id="roomPills" style="margin-top:6px; flex-wrap:wrap;"></div>
+            </div>
+            <div class="field">
+              <div class="label">カテゴリ</div>
+              <select id="matchCategory">
+                <option value="all">すべて</option>
+                <option>財布</option><option>カバン</option><option>スマートフォン</option><option>充電器</option><option>鍵</option><option>衣類</option><option>ファッション小物</option><option>メガネ</option><option>化粧品</option><option>靴</option><option>傘</option><option>その他</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="label">色・ブランド・特徴</div>
+              <textarea id="matchKeyword" placeholder="例）黒い長財布 / COACH / 透明ケース など"></textarea>
+            </div>
+          <div class="field">
+            <div class="label">聞き取ったことのメモ</div>
+            <textarea id="matchNote" placeholder="電話中のメモを残せます"></textarea>
+          </div>
+            <div class="label" style="margin-top:6px; font-weight:700; color:var(--heading);">絞り込み結果：<span id="matchCount">0件</span></div>
+          </div>
+        <div class="match-center">
+          <div class="match-meta"><span>候補 <span id="matchMetaText"></span></span><span style="color:var(--muted); font-size:12px;">発見日の新しい順</span></div>
+          <div id="matchGrid" class="match-grid"></div>
+        </div>
+        <div class="match-right">
+          <div id="matchDetail" class="match-detail">
+            <div class="match-photo-wrap">
+              <img id="matchPhoto" class="match-photo" alt="">
+            </div>
+            <div class="match-detail-body">
+              <div class="detail-row"><div class="detail-label">管理番号</div><div id="matchId">-</div></div>
+              <div class="detail-row"><div class="detail-label">カテゴリ</div><div id="matchCategoryLabel">-</div></div>
+              <div class="detail-row"><div class="detail-label">ステータス</div><div id="matchStatus">-</div></div>
+              <div class="detail-row"><div class="detail-label">発見日</div><div id="matchFound">-</div></div>
+              <div class="detail-row"><div class="detail-label">宿泊日</div><div id="matchStay">-</div></div>
+              <div class="detail-row"><div class="detail-label">部屋</div><div id="matchRoomDetail">-</div></div>
+              <div class="detail-row"><div class="detail-label">拾得場所</div><div id="matchPlace">-</div></div>
+              <div class="detail-row"><div class="detail-label">特徴</div><div id="matchFeature">-</div></div>
+              <div class="detail-row"><div class="detail-label">保管場所</div><div id="matchStorage">-</div></div>
+            </div>
+            <div class="detail-actions">
+                <button class="btn-primary" id="matchConfirm" style="width:100%;">お客様の落とし物として確定</button>
+                <button class="btn-outline" id="matchExclude" style="width:100%;">候補から外す</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section class="section login-preview">
+      <div>
+        <div class="section-heading">
+          <h2>ログイン画面（PC）</h2>
+        </div>
+        <p>薄いグレー背景に浮かぶカードで、毎日の始まりをシンプルに。メール＋パスワードのみでサクッと入室。</p>
+      </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <div class="login-card">
+          <div class="brand" style="justify-content:center; gap:10px;">
+            <div class="brand-mark">LC</div>
+            <div style="text-align:left;">
+              <div style="font-weight:800; color:var(--heading);">落とし物クラウド</div>
+              <small style="color:var(--muted)">ログイン</small>
+            </div>
+          </div>
+          <div class="input">
+            <input type="email" placeholder="メールアドレス">
+          </div>
+          <div class="input">
+            <input type="password" placeholder="パスワード">
+          </div>
+          <button class="btn-primary" style="width:100%;">ログイン</button>
+          <div class="subtle-link">パスワードをお忘れの方はこちら</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section two-col">
+      <div>
+        <div class="section-heading">
+          <h2>モバイル（清掃・倉庫向け）</h2>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <p style="margin:0;">3タップでカメラに到達。ワンウェイの登録フローで迷わせません。</p>
+            <button class="btn-outline" onclick="window.location.href='mobile.html'">モバイル専用ページを開く</button>
+          </div>
+        </div>
+        <ul style="color:var(--muted); padding-left:18px; line-height:1.7;">
+          <li>ホームは「登録する」と「登録したものを確認」の2ボタン</li>
+          <li>ステップインジケーターで現在地を明示</li>
+          <li>カテゴリグリッド → 写真 → 詳細 → 保管場所のシンプル4ステップ</li>
+        </ul>
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="mobile-top">
+            <span>花月旅館 本館</span>
+            <div class="stepper">
+              <div class="dot active"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <div id="mobileScreen"></div>
+          <div class="mobile-bottom">
+            <button class="btn-primary" id="mobileNext" style="width:100%; border-radius:12px;">次へ</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="detail-panel" id="detailPanel">
+    <div class="detail-head">
+      <div>
+        <div class="detail-id" id="detailId">A-023</div>
+        <div class="pills" style="margin-top:6px;">
+          <div class="pill status" id="detailCategory">財布</div>
+          <div class="badge status-stock" id="detailStatus">保管中</div>
+        </div>
+      </div>
+      <button class="btn-ghost" id="closeDetail">✕</button>
+    </div>
+    <img class="detail-photo" id="detailPhoto" alt="item">
+    <div class="detail-grid">
+      <div class="detail-section">
+        <h4>基本情報</h4>
+        <div class="detail-row"><div class="detail-label">管理番号</div><div id="detailIdRef">A-023</div></div>
+        <div class="detail-row"><div class="detail-label">カテゴリ</div><div id="detailCategoryRef">財布</div></div>
+        <div class="detail-row"><div class="detail-label">ステータス</div><div id="detailStatusRef">保管中</div></div>
+      </div>
+      <div class="detail-section">
+        <h4>場所・日付</h4>
+        <div class="detail-row"><div class="detail-label">発見日</div><div id="detailFound"></div></div>
+        <div class="detail-row"><div class="detail-label">宿泊日</div><div id="detailStay"></div></div>
+        <div class="detail-row"><div class="detail-label">拾得場所</div><div id="detailPlace"></div></div>
+        <div class="detail-row"><div class="detail-label">部屋番号</div><div id="detailRoom"></div></div>
+      </div>
+      <div class="detail-section">
+        <h4>特徴</h4>
+        <div class="detail-row"><div class="detail-label">色 / ブランド</div><div id="detailMeta"></div></div>
+        <div class="detail-row"><div class="detail-label">特徴</div><div id="detailFeature"></div></div>
+      </div>
+      <div class="detail-section">
+        <h4>保管・期限</h4>
+        <div class="detail-row"><div class="detail-label">保管場所</div><div id="detailStorage"></div></div>
+        <div class="detail-row"><div class="detail-label">保管期限</div><div id="detailDeadline"></div></div>
+      </div>
+      <div class="detail-section">
+        <h4>お客様情報</h4>
+        <div class="detail-row"><div class="detail-label">顧客情報</div><div id="detailCustomer">-</div></div>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-ghost" data-update="廃棄済" style="color:#DC2626;">廃棄済として記録</button>
+      <button class="btn-primary" data-update="返却済">返却済として記録</button>
+      <button class="btn-ghost" data-update="警察引渡し">警察に引き渡し</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast">更新しました</div>
+
+  <footer>© 落とし物クラウド（仮） — “旅館バックヤードの相棒”</footer>
+
+  <script>
+    const data = [
+      { id: 'A-023', category: '財布', date: '2025-03-15', stay: '2025-03-14', place: '301号室 / ベッド付近', room: '301', storage: '倉庫A-3', status: '保管中', deadline: '2025-04-30', daysLeft: 45, color: '黒', brand: 'サムソナイト', feature: '黒い長財布 / 金色ファスナー', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80' },
+      { id: 'B-144', category: 'スマートフォン', date: '2025-03-14', stay: '2025-03-13', place: '大浴場 ロッカー前', room: '-', storage: 'フロント棚B-2', status: '期限間近', deadline: '2025-03-22', daysLeft: 7, color: 'ブルー', brand: 'iPhone 13', feature: '青いケース / 画面割れなし', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80' },
+      { id: 'C-078', category: '鍵', date: '2025-03-10', stay: '2025-03-10', place: 'ロビー ソファ', room: '-', storage: '倉庫A-1', status: '期限切れ', deadline: '2025-03-17', daysLeft: -3, color: 'シルバー', brand: 'MIWA', feature: 'キータグ「青」付き', image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=600&q=80' },
+      { id: 'D-011', category: '傘', date: '2025-03-15', stay: '', place: 'レストラン入り口', room: '-', storage: 'フロント傘立て', status: '保管中', deadline: '2025-04-05', daysLeft: 20, color: '赤', brand: '-', feature: '赤い折りたたみ傘', image: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=600&q=80' },
+      { id: 'E-032', category: '衣類', date: '2025-03-12', stay: '', place: '大浴場 脱衣所', room: '-', storage: '倉庫B-1', status: '返却済', deadline: '2025-03-25', daysLeft: 10, color: 'ベージュ', brand: 'ユニクロ', feature: 'ベージュのカーディガン', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
+      { id: 'F-204', category: '化粧品', date: '2025-03-16', stay: '', place: '客室 502', room: '502', storage: '倉庫C-2', status: '期限間近', deadline: '2025-03-23', daysLeft: 6, color: 'ピンク', brand: 'SHISEIDO', feature: 'ポーチに口紅3本', image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80' },
+      { id: 'G-099', category: '靴', date: '2025-03-09', stay: '2025-03-08', place: 'エレベーター前', room: '-', storage: '倉庫A-5', status: '期限切れ', deadline: '2025-03-16', daysLeft: -4, color: '白', brand: 'NIKE', feature: '白のスニーカー 27cm', image: 'https://images.unsplash.com/photo-1528701800489-20be9f3c0341?auto=format&fit=crop&w=600&q=80' },
+      { id: 'H-055', category: '充電器', date: '2025-03-16', stay: '', place: 'ロビー コンセント', room: '-', storage: 'フロント棚A-1', status: '保管中', deadline: '2025-04-04', daysLeft: 19, color: '白', brand: 'Anker', feature: '白いUSB-Cケーブル付き', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80' }
+    ];
+
+    const tableBody = document.getElementById('tableBody');
+    const detailPanel = document.getElementById('detailPanel');
+    const toast = document.getElementById('toast');
+
+    const badgeClass = (status) => {
+      if (status === '保管中') return 'badge status-stock';
+      if (status === '期限間近') return 'badge status-warning';
+      if (status === '期限切れ') return 'badge status-danger';
+      return 'badge status-complete';
+    };
+
+    function daysLabel(days) {
+      if (days < 0) return `期限切れ (${Math.abs(days)}日超過)`;
+      if (days === 0) return '本日まで';
+      return `あと${days}日`;
+    }
+
+    function renderTable(list = data) {
+      tableBody.innerHTML = '';
+      list.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.style.animationDelay = `${idx * 40}ms`;
+        tr.innerHTML = `
+          <td><img class="thumb" src="${item.image}" alt=""></td>
+          <td style="font-weight:700;color:var(--heading);">${item.id}</td>
+          <td>${item.category}</td>
+          <td>${item.date}</td>
+          <td>${item.stay || '-'}</td>
+          <td>${item.place}</td>
+          <td>${item.room || '-'}</td>
+          <td>${item.storage}</td>
+          <td><span class="${badgeClass(item.status)}">${item.status}</span></td>
+          <td>${item.deadline} <br><small style="color:var(--muted)">${daysLabel(item.daysLeft)}</small></td>
+        `;
+        tr.addEventListener('click', () => {
+          tableBody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+          tr.classList.add('selected-row');
+          openDetail(item);
+        });
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function openDetail(item) {
+      document.getElementById('detailId').textContent = item.id;
+      document.getElementById('detailCategory').textContent = item.category;
+      const statusEl = document.getElementById('detailStatus');
+      statusEl.className = badgeClass(item.status);
+      statusEl.textContent = item.status;
+      document.getElementById('detailIdRef').textContent = item.id;
+      document.getElementById('detailCategoryRef').textContent = item.category;
+      document.getElementById('detailStatusRef').textContent = item.status;
+      document.getElementById('detailPhoto').src = item.image;
+      document.getElementById('detailFound').textContent = item.date;
+      document.getElementById('detailStay').textContent = item.stay || '―';
+      document.getElementById('detailPlace').textContent = item.place;
+      document.getElementById('detailRoom').textContent = item.room || '―';
+      document.getElementById('detailMeta').textContent = `${item.color} / ${item.brand}`;
+      document.getElementById('detailFeature').textContent = item.feature;
+      document.getElementById('detailStorage').textContent = item.storage;
+      document.getElementById('detailDeadline').textContent = `${item.deadline}（${daysLabel(item.daysLeft)}）`;
+      detailPanel.classList.add('open');
+    }
+
+    document.getElementById('closeDetail').addEventListener('click', () => detailPanel.classList.remove('open'));
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    detailPanel.querySelectorAll('[data-update]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showToast(`${document.getElementById('detailId').textContent} を「${btn.dataset.update}」に更新しました`);
+      });
+    });
+
+    // Filters
+    const keyword = document.getElementById('keyword');
+    const categorySelect = document.getElementById('categorySelect');
+    const statusPills = Array.from(document.querySelectorAll('#statusSelect .pill'));
+    const filterChips = document.getElementById('filterChips');
+    const mainTabSwitch = document.getElementById('mainTabSwitch');
+    const viewList = document.getElementById('viewList');
+    const viewDeadline = document.getElementById('viewDeadline');
+    const viewSettings = document.getElementById('viewSettings');
+    const viewMatch = document.getElementById('viewMatch');
+    const tableMetaText = document.getElementById('tableMetaText');
+
+    let activeStatuses = ['保管中'];
+    let activeTab = 'all';
+    let matchSelected = null;
+
+    function filterData() {
+      let list = [...data];
+      const q = keyword.value.trim().toLowerCase();
+      const category = categorySelect.value;
+      if (q) {
+        list = list.filter(d => Object.values(d).join(' ').toLowerCase().includes(q));
+      }
+      if (category !== 'all') {
+        list = list.filter(d => d.category === category);
+      }
+      if (activeStatuses.length) {
+        list = list.filter(d => activeStatuses.includes(d.status));
+      }
+      renderTable(list);
+      renderChips();
+    }
+
+    function renderChips() {
+      filterChips.innerHTML = '';
+      if (keyword.value) addChip(`キーワード: ${keyword.value}`, () => { keyword.value=''; filterData(); });
+      if (categorySelect.value !== 'all') addChip(`カテゴリ: ${categorySelect.value}`, () => { categorySelect.value='all'; filterData(); });
+      if (activeStatuses.length && activeStatuses.length !== 4) addChip(`ステータス: ${activeStatuses.join(', ')}`, () => { activeStatuses=['保管中']; updateStatusPills(); filterData(); });
+    }
+    function addChip(text, onRemove) {
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip';
+      chip.textContent = text;
+      const btn = document.createElement('button');
+      btn.textContent = '×';
+      btn.onclick = onRemove;
+      chip.appendChild(btn);
+      filterChips.appendChild(chip);
+    }
+
+    keyword.addEventListener('input', filterData);
+    categorySelect.addEventListener('change', filterData);
+    document.getElementById('clearFilters').addEventListener('click', () => {
+      keyword.value = '';
+      categorySelect.value = 'all';
+      activeStatuses = ['保管中'];
+      updateStatusPills();
+      filterData();
+    });
+
+    function updateStatusPills() {
+      statusPills.forEach(pill => {
+        const status = pill.dataset.status;
+        pill.classList.toggle('active', activeStatuses.includes(status));
+      });
+    }
+
+    statusPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const status = pill.dataset.status;
+        if (activeStatuses.includes(status)) {
+          activeStatuses = activeStatuses.filter(s => s !== status);
+        } else {
+          activeStatuses.push(status);
+        }
+        if (!activeStatuses.length) activeStatuses = ['保管中'];
+        updateStatusPills();
+        filterData();
+      });
+    });
+
+    function switchMainTab(target) {
+      mainTabSwitch.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      mainTabSwitch.querySelector(`[data-tab="${target}"]`).classList.add('active');
+      viewList.style.display = target === 'list' ? '' : 'none';
+      viewDeadline.style.display = target === 'deadline' ? '' : 'none';
+      viewSettings.style.display = target === 'settings' ? '' : 'none';
+      viewMatch.style.display = target === 'match' ? '' : 'none';
+      if (target === 'list') tableMetaText.textContent = '全 42件 / 表示 10件';
+      if (target === 'deadline') tableMetaText.textContent = '期限カード一覧';
+      if (target === 'settings') tableMetaText.textContent = '設定ショートカット';
+      if (target === 'match') tableMetaText.textContent = '写真で照合';
+    }
+
+    mainTabSwitch.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchMainTab(tab.dataset.tab);
+      });
+    });
+
+    // Summary card clicks
+    document.querySelectorAll('.card.clickable').forEach(card => {
+      card.addEventListener('click', () => {
+        const filter = card.dataset.filter;
+        if (filter === 'stock') { activeStatuses = ['保管中']; updateStatusPills(); }
+        if (filter === 'warning') { activeStatuses = ['期限間近']; updateStatusPills(); }
+        if (filter === 'expired') { activeStatuses = ['期限切れ']; updateStatusPills(); }
+        filterData();
+      });
+    });
+
+    // Deadline cards
+    const deadlineList = document.getElementById('deadlineList');
+    function renderDeadline() {
+      const soon = data.filter(d => d.status === '期限間近' || d.status === '期限切れ').sort((a,b)=>a.daysLeft - b.daysLeft);
+      deadlineList.innerHTML = '';
+      soon.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-weight:800;color:var(--heading);">${item.id}・${item.category}</div>
+            <span class="${badgeClass(item.status)}">${item.status}</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <img class="thumb" src="${item.image}" alt="">
+            <div style="color:var(--muted); font-size:13px;">
+              <div>保管期限: <strong style="color:var(--heading);">${item.deadline}</strong> (${daysLabel(item.daysLeft)})</div>
+              <div>場所: ${item.place}</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn-outline" style="padding:10px 12px;">廃棄済にする</button>
+            <button class="btn-ghost">警察引渡し</button>
+          </div>
+        `;
+        deadlineList.appendChild(div);
+      });
+    }
+
+    // Match view
+    const matchGrid = document.getElementById('matchGrid');
+    const matchMetaText = document.getElementById('matchMetaText');
+    const matchCount = document.getElementById('matchCount');
+    const matchPhoto = document.getElementById('matchPhoto');
+    const matchId = document.getElementById('matchId');
+    const matchCategoryLabel = document.getElementById('matchCategoryLabel');
+    const matchStatus = document.getElementById('matchStatus');
+    const matchFound = document.getElementById('matchFound');
+    const matchStay = document.getElementById('matchStay');
+    const matchRoomDetail = document.getElementById('matchRoomDetail');
+    const matchPlace = document.getElementById('matchPlace');
+    const matchFeature = document.getElementById('matchFeature');
+    const matchStorage = document.getElementById('matchStorage');
+    const matchConfirm = document.getElementById('matchConfirm');
+    const matchExclude = document.getElementById('matchExclude');
+    const roomPills = document.getElementById('roomPills');
+
+    const matchFilters = {
+      keyword: '',
+      category: 'all',
+      room: '',
+      stayFrom: '',
+      stayTo: ''
+    };
+
+    function renderRoomPills() {
+      const rooms = [...new Set(data.map(d => d.room).filter(r => r && r !== '-'))].slice(0, 8);
+      roomPills.innerHTML = rooms.map(r => `<div class="pill ${matchFilters.room===r?'active':''}" data-room="${r}" style="padding:6px 10px; border-radius:10px; font-size:12px;">${r}</div>`).join('');
+      roomPills.querySelectorAll('.pill').forEach(p => {
+        p.addEventListener('click', () => {
+          matchFilters.room = matchFilters.room === p.dataset.room ? '' : p.dataset.room;
+          document.getElementById('matchRoom').value = matchFilters.room;
+          renderRoomPills();
+          renderMatchGrid();
+        });
+      });
+    }
+
+    function applyMatchFilters() {
+      let list = [...data];
+      const k = matchFilters.keyword.toLowerCase();
+      if (k) {
+        list = list.filter(d => Object.values(d).join(' ').toLowerCase().includes(k));
+      }
+      if (matchFilters.category !== 'all') list = list.filter(d => d.category === matchFilters.category);
+      if (matchFilters.room) list = list.filter(d => (d.room || '').includes(matchFilters.room));
+      if (matchFilters.stayFrom) list = list.filter(d => d.stay >= matchFilters.stayFrom);
+      if (matchFilters.stayTo) list = list.filter(d => d.stay <= matchFilters.stayTo);
+      return list;
+    }
+
+    function renderMatchGrid() {
+      const list = applyMatchFilters();
+      matchGrid.innerHTML = '';
+      matchMetaText.textContent = `${list.length}件表示`;
+      matchCount.textContent = `${list.length}件`;
+      if (!list.length) {
+        matchGrid.innerHTML = '<div style="color:var(--muted);">該当がありません</div>';
+        return;
+      }
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        card.innerHTML = `
+          <img src="${item.image}" alt="">
+          <div class="body">
+            <div class="title" style="font-weight:700;">${item.id}・${item.category}</div>
+            <div class="tags">
+              <div class="tag">${item.category}</div>
+              <div class="tag">${item.color}</div>
+            </div>
+            <div class="sub">${item.date} / ${item.place}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => selectMatch(item));
+        if (matchSelected && matchSelected.id === item.id) {
+          card.classList.add('selected');
+          const badge = document.createElement('div');
+          badge.className = 'tag selected-badge';
+          badge.textContent = '選択中';
+          card.querySelector('.tags').appendChild(badge);
+          card.style.borderWidth = '2px';
+        }
+        matchGrid.appendChild(card);
+      });
+      if (!matchSelected && list.length) selectMatch(list[0]);
+    }
+
+    function selectMatch(item) {
+      matchSelected = item;
+      matchPhoto.src = item.image;
+      matchId.textContent = item.id;
+      matchCategoryLabel.textContent = item.category;
+      matchStatus.textContent = item.status;
+      matchFound.textContent = item.date;
+      matchStay.textContent = item.stay || '―';
+      matchRoomDetail.textContent = item.room || '―';
+      matchPlace.textContent = item.place;
+      matchFeature.textContent = item.feature;
+      matchStorage.textContent = item.storage;
+      renderMatchGrid();
+    }
+
+    ['matchKeyword','matchRoom','matchStayFrom','matchStayTo'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', () => {
+        if (id === 'matchKeyword') matchFilters.keyword = el.value;
+        if (id === 'matchRoom') matchFilters.room = el.value;
+        if (id === 'matchStayFrom') matchFilters.stayFrom = el.value;
+        if (id === 'matchStayTo') matchFilters.stayTo = el.value;
+        renderMatchGrid();
+      });
+    });
+    document.getElementById('matchCategory').addEventListener('change', e => {
+      matchFilters.category = e.target.value;
+      renderMatchGrid();
+    });
+    matchConfirm.addEventListener('click', () => {
+      if (matchSelected) showToast(`${matchSelected.id} をお客様の落とし物として確定`);
+    });
+    matchExclude.addEventListener('click', () => {
+      if (matchSelected) showToast(`${matchSelected.id} を候補から外しました`);
+    });
+
+    // Mobile screens mock
+    const mobileScreen = document.getElementById('mobileScreen');
+    const mobileNext = document.getElementById('mobileNext');
+    let step = 0;
+    const mobileViews = [
+      renderMobileHome,
+      renderMobileCategory,
+      renderMobilePhoto,
+      renderMobileDetail,
+      renderMobileConfirm
+    ];
+
+    function renderMobileHome() {
+      mobileNext.textContent = '落とし物を登録する';
+      return `
+        <div class="mobile-card">
+          <div class="brand" style="gap:8px; justify-content:flex-start;">
+            <div class="brand-mark" style="width:30px;height:30px;font-size:12px;">LC</div>
+            <div>
+              <div style="font-weight:800; color:var(--heading);">落とし物管理</div>
+              <small style="color:var(--muted); font-weight:600;">バックヤード用ホーム</small>
+            </div>
+          </div>
+          <div class="mobile-primary">落とし物を登録する</div>
+          <div class="mobile-outline">登録した落とし物を確認する</div>
+          <div style="text-align:center; color:var(--muted); font-size:12px;">保管ルールを確認</div>
+        </div>
+      `;
+    }
+    function renderMobileCategory() {
+      mobileNext.textContent = '次へ';
+      const categories = ['財布','カバン','スマートフォン','充電器','鍵','衣類','ファッション小物','メガネ','化粧品','靴','傘','その他'];
+      return `
+        <div class="mobile-card">
+          <div style="font-weight:800; color:var(--heading);">どんな落とし物ですか？</div>
+          <div class="mobile-grid">
+            ${categories.map((c,i)=>`<div class="mobile-option ${i===0?'active':''}">${c}</div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+    function renderMobilePhoto() {
+      mobileNext.textContent = '写真を撮って次へ';
+      return `
+        <div class="mobile-card" style="text-align:center;">
+          <div style="font-weight:800; color:var(--heading);">写真を撮影してください</div>
+          <div style="margin:10px auto; width:100%; aspect-ratio:1/1; border-radius:14px; border:1px dashed var(--border); display:grid; place-items:center; color:var(--muted); background:linear-gradient(135deg, rgba(37,99,235,0.06), rgba(14,165,233,0.06));">
+            <div>📷 タップして撮影</div>
+          </div>
+          <div style="color:var(--primary); font-weight:700; font-size:13px;">撮り直す</div>
+        </div>
+      `;
+    }
+    function renderMobileDetail() {
+      mobileNext.textContent = '保管場所へ';
+      return `
+        <div class="mobile-card" style="gap:8px;">
+          <div style="font-weight:800; color:var(--heading);">どこで、いつ見つかりましたか？</div>
+          <div class="input" style="text-align:left;">
+            <div class="label">発見日</div>
+            <input type="text" value="今日" />
+          </div>
+          <div class="pills">
+            <div class="pill active">今日</div>
+            <div class="pill">昨日</div>
+          </div>
+          <div class="input" style="text-align:left;">
+            <div class="label">拾得場所</div>
+            <input type="text" value="301号室" />
+          </div>
+          <div class="input" style="text-align:left;">
+            <div class="label">特徴メモ</div>
+            <textarea style="width:100%; min-height:72px; padding:10px; border:1px solid var(--border); border-radius:10px;">黒い長財布 / 金色ファスナー</textarea>
+          </div>
+        </div>
+      `;
+    }
+    function renderMobileConfirm() {
+      mobileNext.textContent = 'この内容で登録する';
+      return `
+        <div class="mobile-card" style="gap:10px;">
+          <div style="font-weight:800; color:var(--heading);">保管場所を教えてください</div>
+          <div class="input" style="text-align:left;">
+            <div class="label">保管場所</div>
+            <input type="text" value="倉庫A-3" />
+          </div>
+          <div class="highlight" style="border-radius:12px;">保管期限：2025/03/31（あと45日）</div>
+          <div class="mobile-card" style="background:#F8FAFC; border-style:dashed;">
+            <div class="label">登録内容の確認</div>
+            <div style="font-weight:700; color:var(--heading);">A-023 / 財布</div>
+            <div style="color:var(--muted); font-size:13px;">発見日：2025/03/15</div>
+            <div style="color:var(--muted); font-size:13px;">拾得場所：301号室</div>
+            <div style="color:var(--muted); font-size:13px;">特徴：黒い長財布 / 金色ファスナー</div>
+            <div style="color:var(--muted); font-size:13px;">保管場所：倉庫A-3</div>
+          </div>
+          <div class="mobile-outline" style="border:1px solid var(--border); color:var(--muted-strong);">戻る</div>
+        </div>
+      `;
+    }
+
+    function renderMobile() {
+      mobileScreen.innerHTML = mobileViews[step]();
+    }
+
+    function updateDots() {
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach((d, i) => d.classList.toggle('active', i <= step));
+    }
+
+    mobileNext.addEventListener('click', () => {
+      if (step < mobileViews.length - 1) {
+        step += 1;
+        renderMobile();
+        updateDots();
+      } else {
+        showToast('登録が完了しました');
+      }
+    });
+
+    // Counters
+    function updateCounters() {
+      document.getElementById('todayCount').textContent = data.filter(d => d.date === '2025-03-16' || d.date === '2025-03-15').length + '件';
+      document.getElementById('stockCount').textContent = data.filter(d => d.status === '保管中').length + '件';
+      document.getElementById('warningCount').textContent = data.filter(d => d.status === '期限間近').length + '件';
+      document.getElementById('expiredCount').textContent = data.filter(d => d.status === '期限切れ').length + '件';
+    }
+
+    renderTable();
+    renderDeadline();
+    renderMobile();
+    updateDots();
+    updateCounters();
+    renderMatchGrid();
+    renderRoomPills();
+    switchMainTab('list');
+
+    document.getElementById('addBtn').addEventListener('click', () => {
+      showToast('「落とし物を登録」モーダルを開く想定');
+    });
+  </script>
+</body>
+</html>

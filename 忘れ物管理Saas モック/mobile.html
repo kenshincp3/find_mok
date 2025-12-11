@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>落とし物クラウド（仮） - モバイル登録</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+    :root {
+      --primary: #1F3A8A;
+      --primary-hover: #162D70;
+      --primary-light: #E3E8F9;
+      --secondary: #0E7490;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E5E7EB;
+      --muted: #6B7280;
+      --heading: #111827;
+      --warning: #F59E0B;
+      --danger: #DC2626;
+    }
+    .glow { display: none; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      background:
+        linear-gradient(180deg, #F8FAFC 0%, #F3F4F6 40%, #F8FAFC 100%);
+      color: var(--heading);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.08'%3E%3Ccircle cx='5' cy='5' r='1.2'/%3E%3Ccircle cx='120' cy='40' r='1'/%3E%3Ccircle cx='180' cy='120' r='1'/%3E%3Ccircle cx='60' cy='160' r='1'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .frame {
+      width: min(430px, 100%);
+      background: linear-gradient(180deg, #FFFFFF, #F6F7FB);
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,0.04);
+      box-shadow: 0 8px 26px rgba(15, 23, 42, 0.16);
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+    }
+    .screen {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-height: 620px;
+      position: relative;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 12px;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 9px;
+      background: #E5E7EB;
+      color: #1F2937;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .progress {
+      position: relative;
+      height: 6px;
+      border-radius: 999px;
+      background: #E5E7EB;
+      overflow: hidden;
+    }
+    .progress .bar {
+      position: absolute;
+      inset: 0;
+      width: 25%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.25s ease;
+    }
+    .step-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+      pointer-events: none;
+    }
+    .step-chip {
+      padding: 10px 8px;
+      border-radius: 10px;
+      background: #E5E7EB;
+      color: #6B7280;
+      font-weight: 800;
+      font-size: 12px;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .step-chip.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(31, 58, 138, 0.16);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      animation: fadeUp 0.35s ease;
+    }
+    .card h3 { margin: 0; font-size: 16px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .option {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+      display: grid;
+      gap: 4px;
+    }
+    .option:hover { transform: translateY(-1px); border-color: #D7E3FF; }
+    .option.active {
+      border-color: rgba(31,58,138,0.9);
+      background: #EEF0FB;
+      color: #162D70;
+      box-shadow: 0 4px 12px rgba(31, 58, 138, 0.12);
+      transform: scale(1.01);
+    }
+
+    .photo {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 12px;
+      border: 1px dashed #E5E7EB;
+      background:
+        linear-gradient(135deg, rgba(31,58,138,0.02), rgba(14,116,144,0.02));
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo img { width: 100%; height: 100%; object-fit: cover; }
+    .photo .hint {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      animation: pulse 1.6s ease infinite;
+    }
+
+    .field { display: grid; gap: 6px; }
+    .label { font-size: 12px; color: var(--muted); font-weight: 700; }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #D1D5DB;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14px;
+      color: #374151;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.14);
+      transform: translateY(-1px);
+    }
+    textarea { resize: vertical; min-height: 74px; }
+
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #F3F4F6;
+      border: 1px solid var(--border);
+      color: #4B5563;
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(31, 58, 138, 0.14); }
+
+    .summary {
+      background: #F8FAFC;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: #374151; }
+    .summary-row span { color: var(--muted); }
+
+    .actions {
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(249,250,251,0.85), rgba(249,250,251,0.98));
+      padding: 12px 0 6px;
+      display: grid;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+    }
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+      font-size: 14px;
+    }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 8px 18px rgba(31, 58, 138, 0.2); }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(31, 58, 138, 0.18); }
+    .btn.disabled {
+      background: #DDE7FF;
+      color: #94A3B8;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--heading); }
+
+    .error {
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      top: 18px;
+      right: 50%;
+      transform: translateX(50%) translateY(-10px);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 22px rgba(15,23,42,0.2);
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 20;
+    }
+    .toast.show { opacity: 1; transform: translateX(50%) translateY(0); }
+
+    .hint-inline { font-size: 12px; color: var(--muted); }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      background: #0F172A;
+      color: #fff;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .mini-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+    .slide-card {
+      animation: slideFade 0.22s ease;
+    }
+    @keyframes slideFade {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: #F3F4F6;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-weight: 700;
+      color: #374151;
+      transition: all 0.12s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(60% 100% at 10% 10%, rgba(31,58,138,0.1), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .toggle.on {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.14);
+    }
+    .toggle.on::after { opacity: 1; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.04); opacity: 0.85; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="glow"></div>
+    <div class="screen">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark">LC</div>
+          <div>
+            <div style="font-weight:800;">花月旅館 本館</div>
+            <div style="color:var(--muted); font-size:11px;">清掃・倉庫用ワークフロー</div>
+          </div>
+        </div>
+        <div class="pill" id="stepTag">STEP 1/4</div>
+      </div>
+
+      <div class="progress"><div class="bar" id="progressBar"></div></div>
+      <div class="steps" aria-hidden="true">
+        <div class="step-chip" data-step="0">カテゴリ</div>
+        <div class="step-chip" data-step="1">写真</div>
+        <div class="step-chip" data-step="2">詳細</div>
+        <div class="step-chip" data-step="3">保管</div>
+      </div>
+
+      <div id="view"></div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="nextBtn">次へ</button>
+        <button class="btn btn-ghost" id="backBtn">＜ 戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">登録が完了しました</div>
+
+  <script>
+    const view = document.getElementById('view');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    const stepTag = document.getElementById('stepTag');
+    const progressBar = document.getElementById('progressBar');
+    const toast = document.getElementById('toast');
+
+    const categories = [
+      { key: 'wallet', label: '財布' },
+      { key: 'bag', label: 'カバン・ポーチ' },
+      { key: 'phone', label: 'スマートフォン' },
+      { key: 'charger', label: '充電器・ケーブル' },
+      { key: 'key', label: '鍵・カードキー' },
+      { key: 'clothes', label: '衣類' },
+      { key: 'accessory', label: 'ファッション小物' },
+      { key: 'glasses', label: 'メガネ' },
+      { key: 'cosme', label: '化粧品' },
+      { key: 'shoes', label: '靴・サンダル' },
+      { key: 'umbrella', label: '傘' },
+      { key: 'other', label: 'その他' }
+    ];
+
+    let step = 0;
+    const state = {
+      category: '',
+      photo: '',
+      foundDate: '今日',
+      stay: '',
+      place: '301号室',
+      room: '301',
+      note: '',
+      storage: '倉庫A-3',
+      deadline: '2025/03/31',
+      id: 'A-023'
+    };
+
+    const formState = {};
+
+    function ensureForm(catKey) {
+      if (!formState[catKey]) formState[catKey] = {};
+      return formState[catKey];
+    }
+
+    function lookupCategoryLabel(key) {
+      const hit = categories.find(c => c.key === key);
+      return hit ? hit.label : '';
+    }
+
+    function setToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function updateStepChips() {
+      const activeIndex = Math.min(step, 3);
+      document.querySelectorAll('.step-chip').forEach(chip => {
+        const idx = Number(chip.dataset.step);
+        chip.classList.toggle('active', idx === activeIndex);
+      });
+    }
+
+    function updateNextLabel() {
+      if (step === 0 && !state.category) {
+        nextBtn.textContent = 'カテゴリを選択してください';
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      nextBtn.classList.remove('disabled');
+      if (step === 0) nextBtn.textContent = '次へ（写真を撮影）';
+      if (step === 1) nextBtn.textContent = '次へ（詳細入力）';
+      if (step === 2) nextBtn.textContent = '次へ（保管場所）';
+      if (step === 3) nextBtn.textContent = 'この内容で登録する';
+      if (step === 4) nextBtn.textContent = '続けて登録する';
+    }
+
+    function render() {
+      stepTag.textContent = step < 4 ? `STEP ${step+1}/4` : '完了';
+      progressBar.style.width = `${Math.min((step+1)/4, 1) * 100}%`;
+      backBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
+      updateStepChips();
+      updateNextLabel();
+
+      if (step === 0) renderCategory();
+      if (step === 1) renderPhoto();
+      if (step === 2) renderDetail();
+      if (step === 3) renderStorage();
+      if (step === 4) renderDone();
+    }
+
+    const miniForms = {
+      wallet: [
+        { type: 'pill', key: 'type', label: '財布の種類', options: ['長財布','二つ折り','三つ折り','コインケース'] },
+        { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）COACH / 無印 / ロゴなし など' },
+        { type: 'pill', key: 'color', label: '色', options: ['黒','茶','ベージュ','赤','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' }
+      ],
+      bag: [
+        { type: 'pill', key: 'bagType', label: 'カバンの種類', options: ['リュック','トート','ショルダー','ボストン','ビジネス','その他'] },
+        { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）無印 / COACH / ロゴなし' },
+        { type: 'pill', key: 'color', label: '色・デザイン', options: ['黒','紺','ベージュ','柄','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '柄や色を追記（任意）' }
+      ],
+      phone: [
+        { type: 'text', key: 'model', label: 'メーカー・機種', placeholder: '例）iPhone 13 / Pixel 8 など' },
+        { type: 'pill', key: 'bodyColor', label: '本体色', options: ['黒','白','青','緑','ピンク','その他'], allowCustom: true, customKey: 'bodyNote', customPlaceholder: '色を追記（任意）' },
+        { type: 'text', key: 'case', label: 'ケースの色・特徴', placeholder: '例）透明ケース / 黒い手帳型 など' }
+      ],
+      umbrella: [
+        { type: 'pill', key: 'umbrellaType', label: '傘の種類', options: ['折りたたみ','長傘'] },
+        { type: 'pill', key: 'color', label: '色', options: ['黒','紺','グレー','透明','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+        { type: 'toggle', key: 'clear', label: '透明ビニール', on: '透明', off: '透明ではない' }
+      ],
+      default: [
+        { type: 'pill', key: 'color', label: '色', options: ['黒','紺','白','グレー','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+        { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）ブランド名 / ロゴなし' },
+        { type: 'text', key: 'note', label: '特徴メモ', placeholder: 'ざっくりでOKです' }
+      ]
+    };
+
+    function renderCategory() {
+      view.innerHTML = `
+        <div class="card">
+          <h3>どんな落とし物ですか？</h3>
+          <p>カテゴリを選ぶと、この後の検索や保管がしやすくなります。ざっくりで大丈夫です。</p>
+          <div class="grid">
+            ${categories.map(c => `
+              <div class="option ${state.category===c.key?'active':''}" data-cat="${c.key}">
+                <div style="font-weight:800;">${c.label}</div>
+              </div>`).join('')}
+          </div>
+          <div id="miniForm"></div>
+        </div>
+      `;
+      view.querySelectorAll('.option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const catKey = opt.dataset.cat;
+          state.category = catKey;
+          ensureForm(catKey);
+          view.querySelectorAll('.option').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          renderMiniForm();
+          updateNextLabel();
+        });
+      });
+      renderMiniForm();
+    }
+
+    function renderMiniForm() {
+      const container = document.getElementById('miniForm');
+      if (!state.category) {
+        container.innerHTML = '';
+        return;
+      }
+      const cfg = miniForms[state.category] || miniForms.default;
+      const form = ensureForm(state.category);
+      container.innerHTML = `
+        <div class="mini-card slide-card">
+          <div>
+            <div style="font-weight:800; color:var(--heading);">${lookupCategoryLabel(state.category)}の特徴を教えてください（2〜3項目でOKです）</div>
+            <div style="color:var(--muted); font-size:13px;">完璧に書かなくて大丈夫。フロントが探しやすい粒度で。</div>
+          </div>
+          <div class="mini-fields"></div>
+        </div>
+      `;
+      const fieldsEl = container.querySelector('.mini-fields');
+      fieldsEl.innerHTML = cfg.map(field => renderMiniField(field, form)).join('');
+      bindMiniFieldEvents(cfg, form);
+    }
+
+    function miniSummaryText() {
+      const form = formState[state.category];
+      if (!form) return state.note || '―';
+      const cfg = miniForms[state.category] || miniForms.default;
+      const parts = [];
+      cfg.forEach(field => {
+        if (field.type === 'pill') {
+          if (form[field.key]) parts.push(form[field.key]);
+          if (field.allowCustom && form[field.customKey]) parts.push(form[field.customKey]);
+        } else if (field.type === 'text') {
+          if (form[field.key]) parts.push(form[field.key]);
+        } else if (field.type === 'toggle') {
+          if (form[field.key]) parts.push(field.on);
+        }
+      });
+      const note = state.note ? `メモ: ${state.note}` : '';
+      return [ ...parts, note ].filter(Boolean).join(' / ') || '―';
+    }
+
+    function renderMiniField(field, form) {
+      if (field.type === 'pill') {
+        return `
+          <div class="field">
+            <div class="label">${field.label}</div>
+            <div class="chips">
+              ${field.options.map(opt => `<div class="chip ${form[field.key]===opt?'active':''}" data-key="${field.key}" data-value="${opt}">${opt}</div>`).join('')}
+            </div>
+            ${field.allowCustom ? `<input class="mini-input" data-key="${field.customKey}" type="text" placeholder="${field.customPlaceholder}" value="${form[field.customKey] || ''}">` : ''}
+          </div>
+        `;
+      }
+      if (field.type === 'text') {
+        return `
+          <div class="field">
+            <div class="label">${field.label}</div>
+            <input class="mini-input" data-key="${field.key}" type="text" placeholder="${field.placeholder || ''}" value="${form[field.key] || ''}">
+          </div>
+        `;
+      }
+      if (field.type === 'toggle') {
+        const on = form[field.key] === true;
+        return `
+          <div class="field">
+            <div class="label">${field.label}</div>
+            <div class="toggle ${on?'on':''}" data-key="${field.key}" data-on="${field.on}" data-off="${field.off}">
+              <span>${on ? field.on : field.off}</span>
+            </div>
+          </div>
+        `;
+      }
+      return '';
+    }
+
+    function bindMiniFieldEvents(cfg, form) {
+      document.querySelectorAll('.chip[data-key]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const key = chip.dataset.key;
+          form[key] = chip.dataset.value;
+          renderMiniForm();
+        });
+      });
+      document.querySelectorAll('.mini-input').forEach(input => {
+        input.addEventListener('input', e => {
+          form[e.target.dataset.key] = e.target.value;
+        });
+      });
+      document.querySelectorAll('.toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          const key = toggle.dataset.key;
+          form[key] = !(form[key] === true);
+          toggle.classList.toggle('on', form[key]);
+          toggle.querySelector('span').textContent = form[key] ? toggle.dataset.on : toggle.dataset.off;
+        });
+      });
+    }
+
+    function renderPhoto() {
+      view.innerHTML = `
+          <div class="card" style="gap:8px;">
+            <h3>写真を撮影してください</h3>
+            <p>タグを書く前に必ず撮影。フロントから検索しやすくなります。</p>
+            <div class="photo" id="photoArea">
+              ${state.photo ? `<img src="${state.photo}" alt="photo">` : '<div>📷 タップして撮影</div>'}
+              <div class="hint">フラッシュ自動</div>
+            </div>
+            <div class="chips">
+            <div class="chip active" style="background:#FFF;border-style:dashed;">1枚でOK</div>
+            <div class="chip" style="background:#FFF;border-style:dashed;">横向き推奨</div>
+            <div class="chip" style="background:#FFF;border-style:dashed;">バーコードも写す</div>
+            </div>
+            <div class="hint-inline">※ 仮想カメラ。タップでデモ画像を挿入します。</div>
+          </div>
+      `;
+      document.getElementById('photoArea').addEventListener('click', () => {
+        state.photo = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80';
+        render();
+      });
+    }
+
+    function renderDetail() {
+      view.innerHTML = `
+        <div class="card">
+          <h3>どこで、いつ見つかりましたか？</h3>
+          <p>分からない場合は空欄のままでOKです。</p>
+          <div class="field">
+            <div class="label">発見日</div>
+            <div class="chips" style="gap:6px;">
+              ${['今日','昨日','3日前','カレンダー'].map(d => `<div class="chip ${state.foundDate===d?'active':''}" data-date="${d}" style="font-size:10px;padding:6px 9px;">${d}</div>`).join('')}
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">拾得場所</div>
+            <select id="placeSelect">
+              ${['301号室','大浴場','ロビー','レストラン','エレベーター前','廊下','その他'].map(p => `<option ${state.place===p?'selected':''}>${p}</option>`).join('')}
+            </select>
+          </div>
+          <div class="grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="field">
+              <div class="label">部屋番号（任意）</div>
+              <input id="roomInput" type="text" value="${state.room}">
+            </div>
+            <div class="field">
+              <div class="label" style="color:#9CA3AF;">宿泊日（任意）</div>
+              <input id="stayInput" type="text" value="${state.stay}" placeholder="分からない場合は空欄">
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">特徴メモ</div>
+            <textarea id="noteInput" placeholder="例）黒い長財布／金色ファスナー／ポケットに領収書">${state.note}</textarea>
+          </div>
+        </div>
+      `;
+      view.querySelectorAll('[data-date]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          state.foundDate = chip.dataset.date;
+          render();
+        });
+      });
+      document.getElementById('placeSelect').addEventListener('change', e => state.place = e.target.value);
+      document.getElementById('roomInput').addEventListener('input', e => state.room = e.target.value);
+      document.getElementById('stayInput').addEventListener('input', e => state.stay = e.target.value);
+      document.getElementById('noteInput').addEventListener('input', e => state.note = e.target.value);
+    }
+
+    function renderStorage() {
+      view.innerHTML = `
+        <div class="card">
+          <h3>保管場所と確認</h3>
+          <p>倉庫と棚のどこに置くかを入力します。</p>
+          <div class="field">
+            <div class="label">保管場所 <span class="hint-inline">例）倉庫A-3 / フロント棚B-2</span></div>
+            <input id="storageInput" type="text" value="${state.storage}">
+          </div>
+          <div class="summary" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; border-style:solid; border-width:1px; border-color:#E5E7EB;">
+            <div style="display:grid; gap:6px;">
+              <div class="summary-row"><span>カテゴリ</span><div>${lookupCategoryLabel(state.category)}</div></div>
+              <div class="summary-row"><span>発見日</span><div>${state.foundDate}</div></div>
+              <div class="summary-row"><span>拾得場所</span><div>${state.place}</div></div>
+            </div>
+            <div style="display:grid; gap:6px;">
+              <div class="summary-row"><span>特徴</span><div>${miniSummaryText()}</div></div>
+              <div class="summary-row"><span>保管期限</span><div>${state.deadline}（あと45日想定）</div></div>
+            </div>
+          </div>
+          <div class="hint-inline" style="color:#6B7280;">※ 登録後に内容を編集することもできます。</div>
+          <div class="chips">
+            <div class="chip active">倉庫ルールを自動適用</div>
+            <div class="chip">期限を手動設定</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('storageInput').addEventListener('input', e => state.storage = e.target.value);
+    }
+
+    function renderDone() {
+      view.innerHTML = `
+        <div class="card" style="text-align:center; gap:12px;">
+          <h3>登録が完了しました</h3>
+          <p>タグに管理番号を書いて、指定の棚に保管してください。</p>
+          <div class="tag">管理番号: ${state.id}</div>
+          <div class="summary">
+            <div class="summary-row"><span>カテゴリ</span><div>${lookupCategoryLabel(state.category)}</div></div>
+            <div class="summary-row"><span>保管場所</span><div>${state.storage}</div></div>
+            <div class="summary-row"><span>保管期限</span><div>${state.deadline}</div></div>
+            <div class="summary-row"><span>特徴</span><div>${miniSummaryText()}</div></div>
+          </div>
+          <div class="chips">
+            <div class="chip active">続けて登録</div>
+            <div class="chip">ホームに戻る</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function validate() {
+      if (step === 0 && !state.category) return 'カテゴリを選択してください';
+      if (step === 1 && !state.photo) return '写真を撮影してください';
+      if (step === 2 && !state.place) return '拾得場所を入力してください';
+      if (step === 3 && !state.storage) return '保管場所を入力してください';
+      return '';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (nextBtn.classList.contains('disabled')) return;
+      const err = validate();
+      if (err) { setToast(err); return; }
+      if (step < 4) {
+        step += 1;
+        if (step === 4) setToast('落とし物を登録しました');
+        render();
+      } else {
+        step = 0;
+        render();
+      }
+    });
+
+    backBtn.addEventListener('click', () => {
+      if (step > 0) {
+        step -= 1;
+        render();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
