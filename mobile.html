@@ -331,6 +331,7 @@
       gap: 10px;
       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
+    .mini-divider { height: 1px; background: var(--border); margin: 8px 0; }
     .slide-card {
       animation: slideFade 0.22s ease;
     }
@@ -455,7 +456,8 @@
     const formState = {};
 
     function ensureForm(catKey) {
-      if (!formState[catKey]) formState[catKey] = {};
+      if (!formState[catKey]) formState[catKey] = { __open: {} };
+      if (!formState[catKey].__open) formState[catKey].__open = {};
       return formState[catKey];
     }
 
@@ -506,32 +508,194 @@
       if (step === 4) renderDone();
     }
 
+    const commonColors = ['黒','白','グレー','紺','茶','その他'];
+
     const miniForms = {
-      wallet: [
-        { type: 'pill', key: 'type', label: '財布の種類', options: ['長財布','二つ折り','三つ折り','コインケース'] },
-        { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）COACH / 無印 / ロゴなし など' },
-        { type: 'pill', key: 'color', label: '色', options: ['黒','茶','ベージュ','赤','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' }
-      ],
-      bag: [
-        { type: 'pill', key: 'bagType', label: 'カバンの種類', options: ['リュック','トート','ショルダー','ボストン','ビジネス','その他'] },
-        { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）無印 / COACH / ロゴなし' },
-        { type: 'pill', key: 'color', label: '色・デザイン', options: ['黒','紺','ベージュ','柄','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '柄や色を追記（任意）' }
-      ],
-      phone: [
-        { type: 'text', key: 'model', label: 'メーカー・機種', placeholder: '例）iPhone 13 / Pixel 8 など' },
-        { type: 'pill', key: 'bodyColor', label: '本体色', options: ['黒','白','青','緑','ピンク','その他'], allowCustom: true, customKey: 'bodyNote', customPlaceholder: '色を追記（任意）' },
-        { type: 'text', key: 'case', label: 'ケースの色・特徴', placeholder: '例）透明ケース / 黒い手帳型 など' }
-      ],
-      umbrella: [
-        { type: 'pill', key: 'umbrellaType', label: '傘の種類', options: ['折りたたみ','長傘'] },
-        { type: 'pill', key: 'color', label: '色', options: ['黒','紺','グレー','透明','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
-        { type: 'toggle', key: 'clear', label: '透明ビニール', on: '透明', off: '透明ではない' }
-      ],
-      default: [
-        { type: 'pill', key: 'color', label: '色', options: ['黒','紺','白','グレー','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
-        { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）ブランド名 / ロゴなし' },
-        { type: 'text', key: 'note', label: '特徴メモ', placeholder: 'ざっくりでOKです' }
-      ]
+      wallet: {
+        title: '財布の特徴を教えてください（2〜3項目でOKです）',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'type', options: ['長財布','二つ折り','三つ折り','小銭入れ','カードケース','パスケース'] }] },
+          { title: '▼ 素材・金具を詳しく入れる（任意）', collapsible: true, fields: [
+            { type: 'pill', key: 'material', label: '素材', options: ['革','布・キャンバス','ナイロン','合皮','その他'] },
+            { type: 'pill', key: 'fastener', label: '開き方・金具', options: ['ファスナー','ボタン留め','がま口','何もなし'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）COACH / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）内側にイニシャル / ざっくりでOKです' }
+          ]}
+        ]
+      },
+      bag: {
+        title: 'カバン・ポーチの特徴を教えてください（2〜3項目でOKです）',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'bagType', options: ['リュック','トートバッグ','ショルダーバッグ','ボストンバッグ','エコバッグ','ポーチ'] }] },
+          { title: '▼ サイズと柄（必要なら）', collapsible: true, fields: [
+            { type: 'pill', key: 'bagSize', label: 'サイズ感', options: ['大（旅行カバン）','中（A4が入る）','小（財布が入る程度）'] },
+            { type: 'pill', key: 'bagPattern', label: '柄・デザイン', options: ['無地','チェック','ストライプ','花柄','ロゴ大きめ'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）無印 / COACH / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）ポケット多め / ざっくりでOKです' }
+          ]}
+        ]
+      },
+      phone: {
+        title: 'スマホ・携帯の特徴を教えてください',
+        sections: [
+          { title: '機種タイプ', fields: [{ type: 'pill', key: 'deviceType', options: ['iPhone','Android','ガラケー','タブレット','不明'] }] },
+          { title: 'ケースまわり', fields: [
+            { type: 'pill', key: 'casePresence', label: 'ケースの有無', options: ['ケースあり','ケースなし','不明'] },
+            { type: 'pill', key: 'caseType', label: 'ケースの種類', options: ['手帳型','クリアケース','柄入りケース','複数色','その他'], showIf: (f)=>f.casePresence==='ケースあり' }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'bodyColor', label: '色（本体 or ケース）', options: commonColors, allowCustom: true, customKey: 'bodyNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）Apple / Galaxy / Xperia / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）ポップソケット / 画面上部ヒビ など' }
+          ]}
+        ]
+      },
+      charger: {
+        title: '充電器・ケーブルの特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'chargerType', options: ['コンセント一体型充電器','ケーブルのみ','モバイルバッテリー','充電器＋ケーブルセット'] }] },
+          { title: '端子と長さ', fields: [
+            { type: 'pill', key: 'connector', label: '端子の種類', options: ['Lightning','USB-C','microUSB','その他','不明'] },
+            { type: 'pill', key: 'cableLength', label: '長さ（任意）', options: ['0.5m','1m','長め','巻き取り'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: ['白','黒','グレー','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）Anker / Apple / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）先端がL字 / 口が割れている など' }
+          ]}
+        ]
+      },
+      key: {
+        title: '鍵・カードキーの特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'keyType', options: ['金属キー','カードキー','車のスマートキー','その他'] }] },
+          { title: '本数・キーホルダー', fields: [
+            { type: 'pill', key: 'keyCount', label: '本数', options: ['1本','2〜3本','4本以上','不明'] },
+            { type: 'pill', key: 'keyholder', label: 'キーホルダー', options: ['あり','なし'] },
+            { type: 'text', key: 'keyholderNote', label: 'キーホルダーの内容', placeholder: '例）赤いタグ / クマの人形', showIf: (f)=>f.keyholder==='あり' }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）車メーカー / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）キータグに部屋番号 / ざっくりでOKです' }
+          ]}
+        ]
+      },
+      clothes: {
+        title: '衣類の特徴を教えてください',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'clothesType', options: ['上着','トップス','ボトムス','部屋着・パジャマ','下着・靴下'] }] },
+          { title: '▼ 柄・サイズ（任意）', collapsible: true, fields: [
+            { type: 'pill', key: 'pattern', label: '柄', options: ['無地','ボーダー','チェック','ドット','花柄・総柄'] },
+            { type: 'pill', key: 'size', label: 'サイズ感', options: ['子ども用','大人 S〜M','大人 L以上'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）ユニクロ / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）袖にロゴ / ポケット付き など' }
+          ]}
+        ]
+      },
+      accessory: {
+        title: 'ファッション小物の特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'accessoryType', options: ['帽子','腕時計','ベルト','マフラー・ストール','アクセサリー','その他'] }] },
+          { title: '▼ 素材感（任意）', collapsible: true, fields: [
+            { type: 'pill', key: 'material', label: '素材', options: ['布・ニット','革・合皮','金属','プラスチック'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）GUCCI / CASIO / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）装飾の形 / 留め具の特徴 など' }
+          ]}
+        ]
+      },
+      glasses: {
+        title: 'メガネ・サングラスの特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'glassesType', options: ['度付きメガネ','サングラス','老眼鏡'] }] },
+          { title: '▼ フレーム形状・太さ（任意）', collapsible: true, fields: [
+            { type: 'pill', key: 'frameShape', label: '形', options: ['丸','四角','その他'] },
+            { type: 'pill', key: 'frameThickness', label: '太さ', options: ['細め','普通','太め'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: 'フレーム色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）Ray-Ban / JINS / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）レンズに傷 / ツルが曲がり気味 など' }
+          ]}
+        ]
+      },
+      cosme: {
+        title: '化粧品・日用品の特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'cosmeType', options: ['スキンケア','メイク','ヘアケア','その他日用品'] }] },
+          { title: '▼ 形状（任意）', collapsible: true, fields: [
+            { type: 'pill', key: 'cosmeShape', label: '形状', options: ['ボトル','チューブ','コンパクト','パレット','その他'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '容器の色', options: ['白','黒','ピンク','ゴールド','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド', placeholder: '例）資生堂 / CHANEL / 無印' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）残量少なめ / パッケージの柄など' }
+          ]}
+        ]
+      },
+      shoes: {
+        title: '靴・サンダルの特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'shoeType', options: ['スニーカー','サンダル','ブーツ','パンプス・ヒール','室内用スリッパ'] }] },
+          { title: 'サイズ', fields: [
+            { type: 'pill', key: 'sizeRange', label: 'サイズ', options: ['〜23','23〜25','25〜27','27以上','不明'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド', placeholder: '例）NIKE / adidas / ロゴなし など' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）ソールの色 / ロゴ位置 など' }
+          ]}
+        ]
+      },
+      umbrella: {
+        title: '傘の特徴',
+        sections: [
+          { title: '種類', fields: [{ type: 'pill', key: 'umbrellaType', options: ['長傘','折りたたみ傘'] }] },
+          { title: '色・透明度', fields: [
+            { type: 'pill', key: 'umbrellaColor', label: '色・透明度', options: ['ビニール透明','色付き透明','不透明（黒・紺）','その他'], allowCustom: true, customKey: 'umbrellaColorNote', customPlaceholder: '色を追記（任意）' }
+          ]},
+          { title: '▼ 柄（任意）', collapsible: true, fields: [
+            { type: 'pill', key: 'pattern', label: '柄', options: ['無地','ドット','花柄','ロゴ・イラスト入り'] }
+          ]},
+          { title: '共通', fields: [
+            { type: 'text', key: 'brand', label: 'ブランド（あれば）', placeholder: '任意で記入' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '例）骨が1本曲がり / グリップ色' }
+          ]}
+        ]
+      },
+      other: {
+        title: 'その他の特徴',
+        sections: [
+          { title: 'ざっくり種類', fields: [{ type: 'pill', key: 'otherType', options: ['電子機器','バッグ類','衣類・布もの','書類・本・ノート','食べ物・お土産','こども用品','その他'] }] },
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: commonColors, allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ', placeholder: '任意で記入' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: '自由入力（少し長めOK）' }
+          ]}
+        ]
+      },
+      default: {
+        title: '特徴を教えてください',
+        sections: [
+          { title: '共通', fields: [
+            { type: 'pill', key: 'color', label: '色', options: ['黒','紺','白','グレー','その他'], allowCustom: true, customKey: 'colorNote', customPlaceholder: '色を追記（任意）' },
+            { type: 'text', key: 'brand', label: 'ブランド・ロゴ名', placeholder: '例）ブランド名 / ロゴなし' },
+            { type: 'text', key: 'note', label: '特徴メモ', placeholder: 'ざっくりでOKです' }
+          ]}
+        ]
+      }
     };
 
     function renderCategory() {
@@ -573,41 +737,62 @@
       container.innerHTML = `
         <div class="mini-card slide-card">
           <div>
-            <div style="font-weight:800; color:var(--heading);">${lookupCategoryLabel(state.category)}の特徴を教えてください（2〜3項目でOKです）</div>
-            <div style="color:var(--muted); font-size:13px;">完璧に書かなくて大丈夫。フロントが探しやすい粒度で。</div>
+            <div style="font-weight:800; color:var(--heading);">${cfg.title || (lookupCategoryLabel(state.category) + 'の特徴を教えてください')}</div>
+            <div style="color:var(--muted); font-size:13px; font-weight:700;">完璧に書かなくて大丈夫。フロントが探しやすい粒度で、2〜3項目でOKです。</div>
           </div>
           <div class="mini-fields"></div>
         </div>
       `;
+      const sections = cfg.sections || [{ title: '', fields: cfg }];
       const fieldsEl = container.querySelector('.mini-fields');
-      fieldsEl.innerHTML = cfg.map(field => renderMiniField(field, form)).join('');
-      bindMiniFieldEvents(cfg, form);
+      fieldsEl.innerHTML = sections.map(sec => renderMiniSection(sec, form)).join('');
+      sections.forEach(sec => bindSectionEvents(sec, form, container));
     }
 
     function miniSummaryText() {
       const form = formState[state.category];
       if (!form) return state.note || '―';
       const cfg = miniForms[state.category] || miniForms.default;
+      const sections = cfg.sections || [{ fields: cfg }];
       const parts = [];
-      cfg.forEach(field => {
-        if (field.type === 'pill') {
-          if (form[field.key]) parts.push(form[field.key]);
-          if (field.allowCustom && form[field.customKey]) parts.push(form[field.customKey]);
-        } else if (field.type === 'text') {
-          if (form[field.key]) parts.push(form[field.key]);
-        } else if (field.type === 'toggle') {
-          if (form[field.key]) parts.push(field.on);
-        }
+      sections.forEach(sec => {
+        sec.fields.forEach(field => {
+          if (field.showIf && !field.showIf(form)) return;
+          if (field.type === 'pill') {
+            if (form[field.key]) parts.push(form[field.key]);
+            if (field.allowCustom && form[field.customKey]) parts.push(form[field.customKey]);
+          } else if (field.type === 'text') {
+            if (form[field.key]) parts.push(form[field.key]);
+          } else if (field.type === 'toggle') {
+            if (form[field.key]) parts.push(field.on);
+          }
+        });
       });
       const note = state.note ? `メモ: ${state.note}` : '';
       return [ ...parts, note ].filter(Boolean).join(' / ') || '―';
+    }
+
+    function renderMiniSection(section, form) {
+      const open = section.collapsible ? form.__open[section.title] : true;
+      const toggleBtn = section.collapsible ? `<button class="btn-ghost" style="padding:0; color:var(--muted-strong); font-size:12px;" data-sec="${section.title}">${open ? '▲' : '▼'} ${section.title}</button>` : (section.title ? `<div class="label" style="font-weight:700; color:var(--muted-strong);">${section.title}</div>` : '');
+      const fields = section.fields.filter(f => !f.showIf || f.showIf(form)).map(f => renderMiniField(f, form)).join('');
+      const commonDivider = section.title && section.title.includes('共通') ? '<div class="mini-divider"></div>' : '';
+      return `
+        <div class="field" style="gap:6px;">
+          ${section.title ? toggleBtn : ''}
+          ${commonDivider}
+          <div class="mini-section" data-sec="${section.title}" style="${section.collapsible && !open ? 'display:none;' : ''}">
+            ${fields}
+          </div>
+        </div>
+      `;
     }
 
     function renderMiniField(field, form) {
       if (field.type === 'pill') {
         return `
           <div class="field">
-            <div class="label">${field.label}</div>
+            ${field.label ? `<div class="label">${field.label}</div>` : ''}
             <div class="chips">
               ${field.options.map(opt => `<div class="chip ${form[field.key]===opt?'active':''}" data-key="${field.key}" data-value="${opt}">${opt}</div>`).join('')}
             </div>
@@ -618,7 +803,7 @@
       if (field.type === 'text') {
         return `
           <div class="field">
-            <div class="label">${field.label}</div>
+            ${field.label ? `<div class="label">${field.label}</div>` : ''}
             <input class="mini-input" data-key="${field.key}" type="text" placeholder="${field.placeholder || ''}" value="${form[field.key] || ''}">
           </div>
         `;
@@ -637,7 +822,23 @@
       return '';
     }
 
-    function bindMiniFieldEvents(cfg, form) {
+    function bindSectionEvents(section, form, container) {
+      if (section.collapsible) {
+        const btn = container.querySelector(`button[data-sec="${section.title}"]`);
+        const secEl = container.querySelector(`.mini-section[data-sec="${section.title}"]`);
+        if (btn && secEl) {
+          btn.addEventListener('click', () => {
+            const open = !(form.__open[section.title]);
+            form.__open[section.title] = open;
+            secEl.style.display = open ? '' : 'none';
+            btn.textContent = `${open ? '▲' : '▼'} ${section.title}`;
+          });
+        }
+      }
+      (section.fields || []).forEach(field => bindFieldEvents(field, form));
+    }
+
+    function bindFieldEvents(field, form) {
       document.querySelectorAll('.chip[data-key]').forEach(chip => {
         chip.addEventListener('click', () => {
           const key = chip.dataset.key;
