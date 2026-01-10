@@ -392,22 +392,42 @@
       font-size: 13px;
     }
 
+    body.modal-open { overflow: hidden; }
+
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 30;
+    }
+    .detail-overlay.show { opacity: 1; pointer-events: auto; }
+
     .detail-panel {
       position: fixed;
-      right: -420px;
-      top: 0;
-      width: 360px;
-      height: 100vh;
+      inset: 0;
+      margin: auto;
+      width: min(640px, 92vw);
+      max-height: 86vh;
+      height: auto;
       background: white;
-      border-left: 1px solid var(--border);
-      box-shadow: -12px 0 30px rgba(15, 23, 42, 0.16);
-      padding: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+      border-radius: 18px;
+      padding: 18px 20px;
       display: grid;
       gap: 14px;
-      transition: right 0.28s ease;
+      opacity: 0;
+      transform: translateY(14px) scale(0.98);
+      pointer-events: none;
+      overflow-y: auto;
+      transition: opacity 0.2s ease, transform 0.2s ease;
       z-index: 40;
     }
-    .detail-panel.open { right: 0; }
+    .detail-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .detail-head {
       display: flex;
       align-items: center;
@@ -423,6 +443,63 @@
       background: linear-gradient(135deg, #E0EAFF, #F9FAFB);
       border: 1px solid var(--border);
     }
+    .detail-photo-wrap {
+      position: relative;
+      display: grid;
+    }
+    .detail-photo-badge {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      background: rgba(15, 23, 42, 0.12);
+      color: #1F2937;
+    }
+    .detail-photo-badge.missing {
+      background: rgba(245, 158, 11, 0.14);
+      color: #92400E;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .detail-photo-badge.ready {
+      background: rgba(16, 185, 129, 0.14);
+      color: #047857;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .detail-photo-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -6px;
+    }
+    .detail-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 4px;
+      border-radius: 12px;
+      background: #F3F4F6;
+    }
+    .detail-tab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted-strong);
+      box-shadow: none;
+    }
+    .detail-tab:hover { transform: none; }
+    .detail-tab.active {
+      background: white;
+      color: var(--heading);
+      box-shadow: var(--shadow);
+    }
+    .detail-tab-content { display: none; gap: 12px; }
+    .detail-tab-content.active { display: grid; }
     .detail-grid { display: grid; gap: 10px; font-size: 14px; }
     .detail-section { border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
     .detail-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -430,6 +507,86 @@
     .detail-row { display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; padding: 4px 0; }
     .detail-label { color: #374151; font-weight: 700; font-size: 12.5px; }
     .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .detail-input,
+    .detail-select,
+    .detail-textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--muted-strong);
+      background: #fff;
+    }
+    .detail-input[readonly] {
+      background: #F8FAFC;
+      color: var(--muted);
+    }
+    .detail-textarea { min-height: 72px; resize: vertical; }
+    .detail-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .detail-help { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .detail-edit-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .detail-meta-text { font-size: 12.5px; color: var(--muted-strong); font-weight: 600; }
+
+    .progress-track {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .progress-step {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #F3F4F6;
+      color: var(--muted-strong);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .progress-step:hover { transform: translateY(-1px); }
+    .progress-step.done {
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--primary);
+      border-color: rgba(37, 99, 235, 0.4);
+    }
+    .progress-step.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 8px 16px rgba(28,51,93,0.2);
+    }
+
+    .history-list { display: grid; gap: 8px; margin: 4px 0 8px; }
+    .history-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #F8FAFC;
+      display: grid;
+      gap: 4px;
+    }
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .history-type { font-weight: 700; color: var(--heading); font-size: 12.5px; }
+    .history-time { font-size: 11.5px; color: var(--muted); }
+    .history-badge { font-size: 11px; padding: 4px 8px; }
+    .history-note { font-size: 13px; color: var(--muted-strong); white-space: pre-wrap; }
+    .history-empty {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #FBFCFE;
+    }
+    .history-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .match-layout {
       display: grid;
@@ -753,10 +910,595 @@
       border-radius: 10px;
     }
 
-    .settings-grid {
+    .settings-shell {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .settings-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(28, 51, 92, 0.08), rgba(14, 116, 144, 0.08));
+    }
+    .settings-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 4px;
+    }
+    .settings-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      gap: 4px;
+    }
+    .settings-panel {
+      display: none;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
       gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .settings-panel.active {
+      display: grid;
+    }
+    .settings-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .settings-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .settings-tag {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #EEF2FF;
+      color: #3730A3;
+    }
+    .settings-tag.priority {
+      background: rgba(245, 158, 11, 0.14);
+      color: #92400E;
+    }
+    .settings-panel-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .settings-example {
+      font-size: 13px;
+      color: var(--muted-strong);
+      background: #F1F5F9;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .settings-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px;
+    }
+    .settings-table {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+    }
+    .settings-table table {
+      border: none;
+    }
+    .settings-table tbody tr {
+      cursor: pointer;
+      opacity: 1;
+      animation: none;
+    }
+    .settings-table tbody tr:hover { background: #F8FAFC; }
+    .settings-side {
+      display: grid;
+      gap: 12px;
+    }
+    .settings-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #F9FAFB;
+      display: grid;
+      gap: 8px;
+    }
+    .settings-box p { font-size: 13px; }
+    .field-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .field-chip {
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid #E2E8F0;
+      background: white;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .field-chip.required {
+      border-color: #C7D2FE;
+      background: #EEF2FF;
+      color: #3730A3;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.12);
+      color: #047857;
+    }
+    .status-pill.inactive {
+      background: rgba(148, 163, 184, 0.25);
+      color: #475569;
+    }
+    .settings-later {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .settings-later-card {
+      border: 1px dashed #CBD5E1;
+      border-radius: 12px;
+      padding: 12px;
+      background: #F8FAFC;
+      display: grid;
+      gap: 6px;
+    }
+    .settings-later-tag {
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748B;
+      background: #E2E8F0;
+    }
+    .settings-later-title {
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .settings-later-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .contact-shell {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.85fr) minmax(320px, 1.15fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .contact-panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .contact-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .contact-list-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .contact-list-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .contact-filter {
+      display: grid;
+      gap: 10px;
+    }
+    .contact-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .contact-list {
+      display: grid;
+      gap: 10px;
+    }
+    .contact-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      background: #fff;
+      cursor: pointer;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+    .contact-card:hover { border-color: #D7E3FF; box-shadow: 0 8px 18px rgba(15,23,42,0.08); transform: translateY(-1px); }
+    .contact-card.active { border-color: var(--primary); box-shadow: 0 10px 22px rgba(28, 51, 93, 0.18); }
+    .contact-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .contact-card-title {
+      font-weight: 700;
+      color: var(--heading);
+      font-size: 13px;
+    }
+    .case-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-weight: 700;
+      font-size: 11px;
+      border: 1px solid transparent;
+    }
+    .case-status.in-progress {
+      background: rgba(59, 130, 246, 0.12);
+      color: #1D4ED8;
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+    .case-status.match {
+      background: rgba(16, 185, 129, 0.12);
+      color: #047857;
+      border-color: rgba(16, 185, 129, 0.28);
+    }
+    .case-status.miss {
+      background: rgba(245, 158, 11, 0.15);
+      color: #92400E;
+      border-color: rgba(245, 158, 11, 0.28);
+    }
+    .case-status.close {
+      background: rgba(148, 163, 184, 0.22);
+      color: #475569;
+      border-color: rgba(148, 163, 184, 0.35);
+    }
+    .contact-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .contact-chip {
+      background: #F1F5F9;
+      color: #334155;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .contact-snippet {
+      font-size: 12px;
+      color: var(--muted-strong);
+    }
+    .contact-empty {
+      padding: 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #F8FAFC;
+    }
+    .contact-detail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .contact-detail-id {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--heading);
+    }
+    .contact-detail-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .contact-section {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: #F9FAFB;
+      display: grid;
+      gap: 10px;
+    }
+    .contact-section-title {
+      font-weight: 700;
+      color: var(--heading);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .contact-textarea {
+      min-height: 96px;
+    }
+    .contact-match-card {
+      border: 1px solid #C7D2FE;
+      border-radius: 12px;
+      padding: 10px;
+      background: #EEF2FF;
+      display: grid;
+      gap: 8px;
+    }
+    .contact-match-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .contact-match-title {
+      font-weight: 700;
+      color: var(--heading);
+      font-size: 13px;
+    }
+    .contact-match-meta {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .contact-match-body {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .contact-match-body img {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      background: #F1F5F9;
+    }
+    .contact-candidate-list {
+      display: grid;
+      gap: 8px;
+    }
+    .contact-candidate {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: #fff;
+    }
+    .contact-candidate img {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      background: #F1F5F9;
+    }
+    .contact-candidate .title {
+      font-weight: 700;
+      color: var(--heading);
+      font-size: 13px;
+    }
+    .contact-candidate .sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .settings-actions {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .settings-actions button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn-compact {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+    .btn-neutral {
+      background: #F1F5F9;
+      color: #334155;
+      border: 1px solid #E2E8F0;
+    }
+    .btn-danger {
+      background: rgba(220, 38, 38, 0.12);
+      color: #B91C1C;
+      border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+    .btn-success {
+      background: rgba(16, 185, 129, 0.14);
+      color: #047857;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .settings-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 14px;
+      font-size: 13px;
+    }
+    .settings-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 45;
+    }
+    .settings-modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .settings-modal {
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      width: min(640px, 92vw);
+      max-height: 90vh;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+      border-radius: 18px;
+      padding: 18px 20px 16px;
+      display: grid;
+      gap: 16px;
+      opacity: 0;
+      transform: translateY(14px) scale(0.98);
+      pointer-events: none;
+      overflow-y: auto;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 55;
+    }
+    .settings-modal.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .settings-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-modal-title-group {
+      display: grid;
+      gap: 4px;
+    }
+    .settings-modal-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .settings-modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .settings-modal-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .settings-modal-body {
+      display: grid;
+      gap: 14px;
+    }
+    .settings-section {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: white;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+    .settings-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .settings-section-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -6px;
+    }
+    .settings-form-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .settings-field {
+      display: grid;
+      gap: 6px;
+    }
+    .settings-label-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-label-row .label { margin: 0; }
+    .settings-required {
+      padding: 3px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid #C7D2FE;
+      background: #EEF2FF;
+      color: #3730A3;
+    }
+    .settings-helper {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .settings-modal input,
+    .settings-modal select,
+    .settings-modal textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #D1D5DB;
+      border-radius: 10px;
+      background: white;
+      color: var(--muted-strong);
+      font-size: 14px;
+    }
+    .settings-modal input:focus,
+    .settings-modal select:focus,
+    .settings-modal textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .settings-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted-strong);
+    }
+    .settings-toggle input { width: 16px; height: 16px; }
+    .settings-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
     }
 
     footer {
@@ -770,12 +1512,15 @@
       .search-row { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .two-col { grid-template-columns: 1fr; }
       .login-preview { grid-template-columns: 1fr; }
+      .settings-hero { flex-direction: column; align-items: flex-start; }
+      .settings-content { grid-template-columns: 1fr; }
+      .contact-shell { grid-template-columns: 1fr; }
     }
     @media (max-width: 720px) {
       .topbar { flex-wrap: wrap; gap: 10px; }
       main { width: 94vw; margin-top: 12px; }
       h1 { font-size: 18px; }
-      .detail-panel { width: 94vw; }
+      .detail-panel { width: 94vw; max-height: 90vh; }
     }
   </style>
 </head>
@@ -813,6 +1558,7 @@
         <div class="tab" data-tab="deadline">期限管理</div>
         <div class="tab" data-tab="settings">設定ショートカット</div>
         <div class="tab" data-tab="match">照合ビュー（写真で探す）</div>
+        <div class="tab" data-tab="contact">問い合わせ対応</div>
       </div>
 
       <div class="grid summary">
@@ -896,6 +1642,8 @@
               <div class="pill" data-status="期限間近">期限間近</div>
               <div class="pill" data-status="期限切れ">期限切れ</div>
               <div class="pill" data-status="返却済">返却済</div>
+              <div class="pill" data-status="警察引渡し">警察引渡し</div>
+              <div class="pill" data-status="廃棄済">廃棄済</div>
             </div>
           </div>
           <div class="field" style="align-self:flex-end;">
@@ -938,25 +1686,207 @@
       </div>
 
       <div id="viewSettings" style="display:none;">
-        <div class="settings-grid">
-          <div class="card">
-            <small>施設設定</small>
-            <div class="value" style="font-size:18px;">倉庫A/B・フロント棚</div>
-            <div class="hint">保管場所・保管期限ルールの管理</div>
-            <button class="btn-outline">編集する</button>
+        <div class="settings-shell">
+          <div class="settings-hero">
+            <div>
+              <div class="settings-title">設定ショートカット</div>
+              <p>拾得場所 → 保管場所 → カテゴリの順で整備すると運用が安定します。</p>
+            </div>
+            <div class="actions">
+              <button class="btn-primary" id="settingsAddBtn">＋ 新規追加</button>
+            </div>
           </div>
-          <div class="card">
-            <small>マスタ設定</small>
-            <div class="value" style="font-size:18px;">カテゴリ / 拾得場所</div>
-            <div class="hint">運用に合わせて項目を最適化</div>
-            <button class="btn-outline">開く</button>
+
+          <div class="tabs settings-tabs" id="settingsTabSwitch">
+            <div class="tab active" data-settings-tab="pickup">拾得場所</div>
+            <div class="tab" data-settings-tab="storage">保管場所</div>
+            <div class="tab" data-settings-tab="category">カテゴリ</div>
           </div>
-          <div class="card">
-            <small>ユーザー</small>
-            <div class="value" style="font-size:18px;">フロント 8名</div>
-            <div class="hint">役割と権限をシンプルに設定</div>
-            <button class="btn-outline">確認</button>
+
+          <div class="settings-panel active" data-settings-panel="pickup">
+            <div class="settings-panel-head">
+              <div>
+                <div class="settings-panel-title">拾得場所マスタ（PickupLocationMaster）<span class="settings-tag priority">最優先</span></div>
+                <div class="settings-panel-sub">温浴以外（ホテル/飲食/商業施設）でもそのまま使える共通語にする。</div>
+              </div>
+              <div class="actions">
+                <button class="btn-outline" data-settings-action="edit">編集</button>
+                <button class="btn-primary" data-settings-action="add">＋ 追加</button>
+              </div>
+            </div>
+            <div class="settings-example">例：客室 / 脱衣所 / ロッカー前 / 受付前 / 駐車場 / トイレ / レストラン</div>
+            <div class="settings-content">
+              <div class="settings-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>label</th>
+                      <th>area</th>
+                      <th>sort_order</th>
+                      <th>is_active</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="settingsPickupBody"></tbody>
+                </table>
+              </div>
+              <div class="settings-side">
+                <div class="settings-box">
+                  <h3>編集できるフィールド</h3>
+                  <div class="field-list">
+                    <span class="field-chip required">label（必須）</span>
+                    <span class="field-chip">area（任意）</span>
+                    <span class="field-chip">sort_order</span>
+                    <span class="field-chip">is_active</span>
+                  </div>
+                </div>
+                <div class="settings-box">
+                  <h3>運用メモ</h3>
+                  <p>館内エリアは「1F/2F」「東西」「屋外」など粒度を揃えると検索が安定します。</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <div class="settings-panel" data-settings-panel="storage">
+            <div class="settings-panel-head">
+              <div>
+                <div class="settings-panel-title">保管場所（StorageLocation）</div>
+                <div class="settings-panel-sub">管理番号採番（code_prefix）と期限（default_retention_days）に直結。</div>
+              </div>
+              <div class="actions">
+                <button class="btn-outline" data-settings-action="edit">編集</button>
+                <button class="btn-primary" data-settings-action="add">＋ 追加</button>
+              </div>
+            </div>
+            <div class="settings-example">例：フロント棚B-2 / 倉庫A-3</div>
+            <div class="settings-content">
+              <div class="settings-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>name</th>
+                      <th>area_type</th>
+                      <th>code_prefix</th>
+                      <th>default_retention_days</th>
+                      <th>sort_order</th>
+                      <th>is_active</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="settingsStorageBody"></tbody>
+                </table>
+              </div>
+              <div class="settings-side">
+                <div class="settings-box">
+                  <h3>編集できるフィールド</h3>
+                  <div class="field-list">
+                    <span class="field-chip required">name（必須）</span>
+                    <span class="field-chip">area_type（倉庫/フロント棚/バックヤード/その他）</span>
+                    <span class="field-chip required">code_prefix（必須）</span>
+                    <span class="field-chip">default_retention_days（任意）</span>
+                    <span class="field-chip">sort_order</span>
+                    <span class="field-chip">is_active</span>
+                  </div>
+                </div>
+                <div class="settings-box">
+                  <h3>運用メモ</h3>
+                  <p>default_retention_days が未設定なら Facility の期限設定にフォールバックします。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-panel" data-settings-panel="category">
+            <div class="settings-panel-head">
+              <div>
+                <div class="settings-panel-title">カテゴリボタン（CategoryMaster）</div>
+                <div class="settings-panel-sub">ベースカテゴリは固定でも、表示ラベルと並び順を施設で調整できます。</div>
+              </div>
+              <div class="actions">
+                <button class="btn-outline" data-settings-action="edit">編集</button>
+                <button class="btn-primary" data-settings-action="add">＋ 追加</button>
+              </div>
+            </div>
+            <div class="settings-example">ベースカテゴリは固定。表示ラベルと並び順だけ施設で最適化。</div>
+            <div class="settings-content">
+              <div class="settings-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>base_category</th>
+                      <th>label</th>
+                      <th>icon_emoji</th>
+                      <th>sort_order</th>
+                      <th>is_active</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="settingsCategoryBody"></tbody>
+                </table>
+              </div>
+              <div class="settings-side">
+                <div class="settings-box">
+                  <h3>編集できるフィールド</h3>
+                  <div class="field-list">
+                    <span class="field-chip">base_category（固定）</span>
+                    <span class="field-chip">label</span>
+                    <span class="field-chip">icon_emoji（任意）</span>
+                    <span class="field-chip">sort_order</span>
+                    <span class="field-chip">is_active</span>
+                  </div>
+                </div>
+                <div class="settings-box">
+                  <h3>運用メモ</h3>
+                  <p>ボタン表示名は現場の呼び方に合わせ、アイコンで視認性を上げます。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-later">
+            <div class="settings-later-card">
+              <div class="settings-later-tag">後回し</div>
+              <div class="settings-later-title">ユーザー管理</div>
+              <div class="settings-later-note">役割と権限、招待フローは次段階で拡張。</div>
+            </div>
+            <div class="settings-later-card">
+              <div class="settings-later-tag">後回し</div>
+              <div class="settings-later-title">施設設定</div>
+              <div class="settings-later-note">保管期限の基準値・通知ルールを管理。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="viewContact" style="display:none; margin-top:12px;">
+        <div class="contact-shell">
+          <div class="contact-panel">
+            <div class="contact-list-header">
+              <div>
+                <div class="contact-list-title">問い合わせケース（ContactCase）</div>
+                <div class="contact-list-sub">問い合わせ対応の進捗を「案件」として保持します。</div>
+              </div>
+              <button class="btn-primary" id="contactNewBtn">＋ 問い合わせ</button>
+            </div>
+            <div class="contact-filter">
+              <div class="pills" id="contactStatusFilters">
+                <div class="pill active" data-status="all">すべて</div>
+                <div class="pill" data-status="対応中">対応中</div>
+                <div class="pill" data-status="一致・返却予定">一致・返却予定</div>
+                <div class="pill" data-status="見つからず">見つからず</div>
+                <div class="pill" data-status="クローズ">クローズ</div>
+              </div>
+              <div class="input">
+                <span class="icon">🔍</span>
+                <input id="contactSearch" type="text" placeholder="管理番号・電話・特徴で検索">
+              </div>
+            </div>
+            <div class="contact-meta" id="contactMetaText">全 0件 / 表示 0件</div>
+            <div class="contact-list" id="contactList"></div>
+          </div>
+
+          <div class="contact-panel" id="contactDetail"></div>
         </div>
       </div>
 
@@ -1090,7 +2020,8 @@
     </section>
   </main>
 
-  <aside class="detail-panel" id="detailPanel">
+  <div class="detail-overlay" id="detailOverlay"></div>
+  <aside class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailId">
     <div class="detail-head">
       <div>
         <div class="detail-id" id="detailId">A-023</div>
@@ -1101,40 +2032,212 @@
       </div>
       <button class="btn-ghost" id="closeDetail">✕</button>
     </div>
-    <img class="detail-photo" id="detailPhoto" alt="item">
-    <div class="detail-grid">
-      <div class="detail-section">
-        <h4>基本情報</h4>
-        <div class="detail-row"><div class="detail-label">管理番号</div><div id="detailIdRef">A-023</div></div>
-        <div class="detail-row"><div class="detail-label">カテゴリ</div><div id="detailCategoryRef">財布</div></div>
-        <div class="detail-row"><div class="detail-label">ステータス</div><div id="detailStatusRef">保管中</div></div>
+    <div class="detail-tabs" id="detailTabs">
+      <button class="detail-tab active" data-tab="detail">詳細</button>
+      <button class="detail-tab" data-tab="history">対応履歴</button>
+      <button class="detail-tab" data-tab="status">ステータス管理</button>
+    </div>
+
+    <div class="detail-tab-content active" data-tab-panel="detail">
+      <div class="detail-photo-wrap">
+        <img class="detail-photo" id="detailPhoto" alt="item">
+        <span class="detail-photo-badge missing" id="detailPhotoBadge">写真未登録</span>
       </div>
-      <div class="detail-section">
-        <h4>場所・日付</h4>
-        <div class="detail-row"><div class="detail-label">発見日</div><div id="detailFound"></div></div>
-        <div class="detail-row"><div class="detail-label">宿泊日</div><div id="detailStay"></div></div>
-        <div class="detail-row"><div class="detail-label">拾得場所</div><div id="detailPlace"></div></div>
-        <div class="detail-row"><div class="detail-label">部屋番号</div><div id="detailRoom"></div></div>
+      <div class="detail-photo-note" id="detailPhotoNote">写真が未登録のため仮画像を表示しています。</div>
+      <div class="detail-grid">
+        <div class="detail-section">
+          <h4>基本情報</h4>
+          <div class="detail-row">
+            <div class="detail-label">管理番号</div>
+            <div><input class="detail-input" id="detailIdInput" type="text" readonly></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">カテゴリ</div>
+            <div>
+              <select class="detail-select" id="detailCategoryInput">
+                <option>財布</option>
+                <option>カバン</option>
+                <option>スマートフォン</option>
+                <option>充電器</option>
+                <option>鍵</option>
+                <option>衣類</option>
+                <option>ファッション小物</option>
+                <option>メガネ</option>
+                <option>化粧品</option>
+                <option>靴</option>
+                <option>傘</option>
+                <option>その他</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>進捗</h4>
+          <div class="progress-track" id="detailProgressTrack">
+            <div class="progress-step" data-step="受付">受付</div>
+            <div class="progress-step" data-step="保管">保管</div>
+            <div class="progress-step" data-step="連絡">連絡</div>
+            <div class="progress-step" data-step="完了">完了</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">進捗ステージ</div>
+            <div>
+              <select class="detail-select" id="detailProgressInput">
+                <option>受付</option>
+                <option>保管</option>
+                <option>連絡</option>
+                <option>完了</option>
+              </select>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">最終更新</div>
+            <div class="detail-meta-text" id="detailProgressUpdated">-</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>場所・日付</h4>
+          <div class="detail-row">
+            <div class="detail-label">発見日</div>
+            <div><input class="detail-input" id="detailFoundInput" type="date"></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">宿泊日</div>
+            <div><input class="detail-input" id="detailStayInput" type="date"></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">拾得場所</div>
+            <div><input class="detail-input" id="detailPlaceInput" type="text"></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">部屋番号</div>
+            <div><input class="detail-input" id="detailRoomInput" type="text"></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>特徴</h4>
+          <div class="detail-row">
+            <div class="detail-label">色 / ブランド</div>
+            <div class="detail-duo">
+              <input class="detail-input" id="detailColorInput" type="text" placeholder="色">
+              <input class="detail-input" id="detailBrandInput" type="text" placeholder="ブランド">
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">特徴</div>
+            <div><textarea class="detail-textarea" id="detailFeatureInput" placeholder="特徴や補足"></textarea></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>保管・期限</h4>
+          <div class="detail-row">
+            <div class="detail-label">保管場所</div>
+            <div><input class="detail-input" id="detailStorageInput" type="text"></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">保管期限</div>
+            <div>
+              <input class="detail-input" id="detailDeadlineInput" type="date">
+              <div class="detail-help" id="detailDeadlineHelp"></div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>お客様情報</h4>
+          <div class="detail-row">
+            <div class="detail-label">顧客情報</div>
+            <div><input class="detail-input" id="detailCustomerInput" type="text" placeholder="例）山田様 / 連絡先"></div>
+          </div>
+        </div>
       </div>
-      <div class="detail-section">
-        <h4>特徴</h4>
-        <div class="detail-row"><div class="detail-label">色 / ブランド</div><div id="detailMeta"></div></div>
-        <div class="detail-row"><div class="detail-label">特徴</div><div id="detailFeature"></div></div>
-      </div>
-      <div class="detail-section">
-        <h4>保管・期限</h4>
-        <div class="detail-row"><div class="detail-label">保管場所</div><div id="detailStorage"></div></div>
-        <div class="detail-row"><div class="detail-label">保管期限</div><div id="detailDeadline"></div></div>
-      </div>
-      <div class="detail-section">
-        <h4>お客様情報</h4>
-        <div class="detail-row"><div class="detail-label">顧客情報</div><div id="detailCustomer">-</div></div>
+      <div class="detail-edit-actions">
+        <button class="btn-primary" id="saveDetail">変更を保存</button>
+        <button class="btn-outline" id="resetDetail">変更を破棄</button>
       </div>
     </div>
-    <div class="detail-actions">
-      <button class="btn-ghost" data-update="廃棄済" style="color:#DC2626;">廃棄済として記録</button>
-      <button class="btn-primary" data-update="返却済">返却済として記録</button>
-      <button class="btn-ghost" data-update="警察引渡し">警察に引き渡し</button>
+
+    <div class="detail-tab-content" data-tab-panel="history">
+      <div class="detail-section">
+        <h4>対応履歴（顧客連絡）</h4>
+        <div class="history-list" id="detailHistoryList"></div>
+        <div class="detail-row">
+          <div class="detail-label">対応種別</div>
+          <div>
+            <select class="detail-select" id="detailHistoryType">
+              <option>メモ</option>
+              <option>電話</option>
+              <option>メール</option>
+              <option>SMS</option>
+              <option>来館</option>
+              <option>郵送</option>
+            </select>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">内容</div>
+          <div><textarea class="detail-textarea" id="detailHistoryNote" placeholder="連絡内容や対応メモを記録"></textarea></div>
+        </div>
+        <div class="history-actions">
+          <button class="btn-outline" id="addHistory">履歴を追加</button>
+          <button class="btn-ghost" id="clearHistoryInput">入力クリア</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-tab-content" data-tab-panel="status">
+      <div class="detail-section">
+        <h4>ステータス管理</h4>
+        <div class="detail-row">
+          <div class="detail-label">現在ステータス</div>
+          <div>
+            <select class="detail-select" id="detailStatusInput">
+              <option>保管中</option>
+              <option>期限間近</option>
+              <option>期限切れ</option>
+              <option>返却済</option>
+              <option>警察引渡し</option>
+              <option>廃棄済</option>
+            </select>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">更新メモ</div>
+          <div><textarea class="detail-textarea" id="detailStatusNote" placeholder="更新理由や引き継ぎメモ"></textarea></div>
+        </div>
+        <div class="history-actions">
+          <button class="btn-outline" id="recordStatus">ステータスを記録</button>
+          <button class="btn-ghost" id="clearStatusNote">メモをクリア</button>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">最終更新</div>
+          <div class="detail-meta-text" id="detailStatusUpdated">-</div>
+        </div>
+        <div class="detail-meta-text">ステータス履歴</div>
+        <div class="history-list" id="detailStatusHistoryList"></div>
+        <div class="detail-help">ステータス更新とメモはここで記録（対応履歴とは別）</div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-ghost" data-update="廃棄済" style="color:#DC2626;">廃棄済として記録</button>
+        <button class="btn-primary" data-update="返却済">返却済として記録</button>
+        <button class="btn-ghost" data-update="警察引渡し">警察に引き渡し</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="settings-modal-overlay" id="settingsModalOverlay"></div>
+  <aside class="settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="settings-modal-head">
+      <div class="settings-modal-title-group">
+        <div class="settings-modal-eyebrow">設定ショートカット</div>
+        <div class="settings-modal-title" id="settingsModalTitle">設定を追加</div>
+        <div class="settings-modal-sub" id="settingsModalSub">入力内容を保存してテーブルに反映します。</div>
+      </div>
+      <button class="btn-ghost" id="settingsModalClose">✕</button>
+    </div>
+    <div class="settings-modal-body" id="settingsModalBody"></div>
+    <div class="settings-modal-actions">
+      <button class="btn-ghost" id="settingsModalCancel">キャンセル</button>
+      <button class="btn-primary" id="settingsModalSave">保存</button>
     </div>
   </aside>
 
@@ -1144,40 +2247,503 @@
 
   <script>
     const data = [
-      { id: 'A-023', category: '財布', date: '2025-03-15', stay: '2025-03-14', place: '301号室 / ベッド付近', room: '301', storage: '倉庫A-3', status: '保管中', deadline: '2025-04-30', daysLeft: 45, color: '黒', brand: 'サムソナイト', feature: '黒い長財布 / 金色ファスナー', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80' },
-      { id: 'B-144', category: 'スマートフォン', date: '2025-03-14', stay: '2025-03-13', place: '大浴場 ロッカー前', room: '-', storage: 'フロント棚B-2', status: '期限間近', deadline: '2025-03-22', daysLeft: 7, color: 'ブルー', brand: 'iPhone 13', feature: '青いケース / 画面割れなし', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80' },
-      { id: 'C-078', category: '鍵', date: '2025-03-10', stay: '2025-03-10', place: 'ロビー ソファ', room: '-', storage: '倉庫A-1', status: '期限切れ', deadline: '2025-03-17', daysLeft: -3, color: 'シルバー', brand: 'MIWA', feature: 'キータグ「青」付き', image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=600&q=80' },
-      { id: 'D-011', category: '傘', date: '2025-03-15', stay: '', place: 'レストラン入り口', room: '-', storage: 'フロント傘立て', status: '保管中', deadline: '2025-04-05', daysLeft: 20, color: '赤', brand: '-', feature: '赤い折りたたみ傘', image: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=600&q=80' },
-      { id: 'E-032', category: '衣類', date: '2025-03-12', stay: '', place: '大浴場 脱衣所', room: '-', storage: '倉庫B-1', status: '返却済', deadline: '2025-03-25', daysLeft: 10, color: 'ベージュ', brand: 'ユニクロ', feature: 'ベージュのカーディガン', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
-      { id: 'F-204', category: '化粧品', date: '2025-03-16', stay: '', place: '客室 502', room: '502', storage: '倉庫C-2', status: '期限間近', deadline: '2025-03-23', daysLeft: 6, color: 'ピンク', brand: 'SHISEIDO', feature: 'ポーチに口紅3本', image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80' },
-      { id: 'G-099', category: '靴', date: '2025-03-09', stay: '2025-03-08', place: 'エレベーター前', room: '-', storage: '倉庫A-5', status: '期限切れ', deadline: '2025-03-16', daysLeft: -4, color: '白', brand: 'NIKE', feature: '白のスニーカー 27cm', image: 'https://images.unsplash.com/photo-1528701800489-20be9f3c0341?auto=format&fit=crop&w=600&q=80' },
-      { id: 'H-055', category: '充電器', date: '2025-03-16', stay: '', place: 'ロビー コンセント', room: '-', storage: 'フロント棚A-1', status: '保管中', deadline: '2025-04-04', daysLeft: 19, color: '白', brand: 'Anker', feature: '白いUSB-Cケーブル付き', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80' }
+      {
+        id: 'A-023',
+        category: '財布',
+        date: '2025-03-15',
+        stay: '2025-03-14',
+        place: '301号室 / ベッド付近',
+        room: '301',
+        storage: '倉庫A-3',
+        status: '保管中',
+        statusUpdated: '2025-03-15 18:20',
+        statusHistory: [
+          { at: '2025-03-15 18:20', status: '保管中', note: '倉庫A-3に保管' },
+          { at: '2025-03-15 10:20', status: '保管中', note: '清掃スタッフより受領' }
+        ],
+        deadline: '2025-04-30',
+        daysLeft: 45,
+        color: '黒',
+        brand: 'サムソナイト',
+        feature: '黒い長財布 / 金色ファスナー',
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80',
+        progress: '保管',
+        progressUpdated: '2025-03-15 18:20',
+        history: []
+      },
+      {
+        id: 'B-144',
+        category: 'スマートフォン',
+        date: '2025-03-14',
+        stay: '2025-03-13',
+        place: '大浴場 ロッカー前',
+        room: '-',
+        storage: 'フロント棚B-2',
+        status: '期限間近',
+        statusUpdated: '2025-03-16 09:10',
+        statusHistory: [
+          { at: '2025-03-16 09:10', status: '期限間近', note: '保管期限の7日前を確認' }
+        ],
+        deadline: '2025-03-22',
+        daysLeft: 7,
+        color: 'ブルー',
+        brand: 'iPhone 13',
+        feature: '青いケース / 画面割れなし',
+        image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80',
+        progress: '連絡',
+        progressUpdated: '2025-03-16 09:10',
+        history: [
+          { at: '2025-03-15 12:05', type: '電話', note: '宿泊者に連絡、折り返し待ち' }
+        ]
+      },
+      {
+        id: 'C-078',
+        category: '鍵',
+        date: '2025-03-10',
+        stay: '2025-03-10',
+        place: 'ロビー ソファ',
+        room: '-',
+        storage: '倉庫A-1',
+        status: '期限切れ',
+        statusUpdated: '2025-03-17 17:30',
+        statusHistory: [
+          { at: '2025-03-17 17:30', status: '期限切れ', note: '期限切れのため対応確認' }
+        ],
+        deadline: '2025-03-17',
+        daysLeft: -3,
+        color: 'シルバー',
+        brand: 'MIWA',
+        feature: 'キータグ「青」付き',
+        image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=600&q=80',
+        progress: '完了',
+        progressUpdated: '2025-03-17 17:30',
+        history: []
+      },
+      {
+        id: 'D-011',
+        category: '傘',
+        date: '2025-03-15',
+        stay: '',
+        place: 'レストラン入り口',
+        room: '-',
+        storage: 'フロント傘立て',
+        status: '保管中',
+        statusUpdated: '2025-03-15 20:00',
+        statusHistory: [
+          { at: '2025-03-15 20:00', status: '保管中', note: 'フロント傘立てに移動' }
+        ],
+        deadline: '2025-04-05',
+        daysLeft: 20,
+        color: '赤',
+        brand: '-',
+        feature: '赤い折りたたみ傘',
+        image: '',
+        progress: '保管',
+        progressUpdated: '2025-03-15 20:00',
+        history: []
+      },
+      {
+        id: 'E-032',
+        category: '衣類',
+        date: '2025-03-12',
+        stay: '',
+        place: '大浴場 脱衣所',
+        room: '-',
+        storage: '倉庫B-1',
+        status: '返却済',
+        statusUpdated: '2025-03-13 15:40',
+        statusHistory: [
+          { at: '2025-03-13 15:40', status: '返却済', note: '来館にて返却' }
+        ],
+        deadline: '2025-03-25',
+        daysLeft: 10,
+        color: 'ベージュ',
+        brand: 'ユニクロ',
+        feature: 'ベージュのカーディガン',
+        image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
+        progress: '完了',
+        progressUpdated: '2025-03-13 15:40',
+        history: [
+          { at: '2025-03-13 15:40', type: '来館', note: '来館にて返却' }
+        ]
+      },
+      {
+        id: 'F-204',
+        category: '化粧品',
+        date: '2025-03-16',
+        stay: '',
+        place: '客室 502',
+        room: '502',
+        storage: '倉庫C-2',
+        status: '期限間近',
+        statusUpdated: '2025-03-16 11:15',
+        statusHistory: [
+          { at: '2025-03-16 11:15', status: '期限間近', note: '期限アラートで確認' }
+        ],
+        deadline: '2025-03-23',
+        daysLeft: 6,
+        color: 'ピンク',
+        brand: 'SHISEIDO',
+        feature: 'ポーチに口紅3本',
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80',
+        progress: '連絡',
+        progressUpdated: '2025-03-16 11:15',
+        history: [
+          { at: '2025-03-16 11:15', type: 'メール', note: '連絡先宛に案内メール送付' }
+        ]
+      },
+      {
+        id: 'G-099',
+        category: '靴',
+        date: '2025-03-09',
+        stay: '2025-03-08',
+        place: 'エレベーター前',
+        room: '-',
+        storage: '倉庫A-5',
+        status: '期限切れ',
+        statusUpdated: '2025-03-16 09:00',
+        statusHistory: [
+          { at: '2025-03-16 09:00', status: '期限切れ', note: '期限切れを確認' }
+        ],
+        deadline: '2025-03-16',
+        daysLeft: -4,
+        color: '白',
+        brand: 'NIKE',
+        feature: '白のスニーカー 27cm',
+        image: 'https://images.unsplash.com/photo-1528701800489-20be9f3c0341?auto=format&fit=crop&w=600&q=80',
+        progress: '保管',
+        progressUpdated: '2025-03-09 18:05',
+        history: []
+      },
+      {
+        id: 'H-055',
+        category: '充電器',
+        date: '2025-03-16',
+        stay: '',
+        place: 'ロビー コンセント',
+        room: '-',
+        storage: 'フロント棚A-1',
+        status: '保管中',
+        statusUpdated: '2025-03-16 14:12',
+        statusHistory: [
+          { at: '2025-03-16 14:12', status: '保管中', note: 'フロント棚A-1に保管' }
+        ],
+        deadline: '2025-04-04',
+        daysLeft: 19,
+        color: '白',
+        brand: 'Anker',
+        feature: '白いUSB-Cケーブル付き',
+        image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80',
+        progress: '保管',
+        progressUpdated: '2025-03-16 14:12',
+        history: []
+      }
+    ];
+
+    const fallbackImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E2E8F0'/%3E%3Cstop offset='100%25' stop-color='%23F8FAFC'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='400' rx='28' fill='url(%23g)'/%3E%3Crect x='120' y='90' width='360' height='220' rx='24' fill='%23FFFFFF' stroke='%23CBD5E1' stroke-width='2'/%3E%3Ccircle cx='230' cy='180' r='28' fill='%23E2E8F0'/%3E%3Cpath d='M200%20260L280%20190L350%20245L410%20200L460%20260' stroke='%23CBD5E1' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ctext x='300' y='325' text-anchor='middle' font-family='Arial,sans-serif' font-size='20' fill='%2394A3B8'%3ENO%20PHOTO%3C/text%3E%3C/svg%3E";
+    const hasImage = (item) => !!(item && item.image && String(item.image).trim());
+    const resolveImage = (item) => (hasImage(item) ? item.image : fallbackImage);
+
+    const contactCases = [
+      {
+        id: 'CC-102',
+        facility: '花月旅館・本館',
+        account: '山田',
+        status: '対応中',
+        channel: '電話',
+        feature_text: '黒い長財布。301号室に宿泊。金色のファスナーが付いている。',
+        stay_date: '2025-03-14',
+        room_number: '301',
+        contact_phone: '090-1234-5678',
+        contact_email: '',
+        matched_lost_item_id: '',
+        shipping: { tracking_number: '', shipped_at: '', shipping_note: '' },
+        created_at: '2025-03-16 09:20',
+        updated_at: '2025-03-16 09:20'
+      },
+      {
+        id: 'CC-103',
+        facility: '花月旅館・本館',
+        account: '佐藤',
+        status: '一致・返却予定',
+        channel: 'LINE',
+        feature_text: '青いスマホケース。ロッカー前で落としたとのこと。',
+        stay_date: '2025-03-13',
+        room_number: '',
+        contact_phone: '',
+        contact_email: 'sato@example.com',
+        matched_lost_item_id: 'B-144',
+        shipping: { tracking_number: 'JP1234-5678-9012', shipped_at: '2025-03-17', shipping_note: 'ゆうパックで発送予定' },
+        created_at: '2025-03-16 11:05',
+        updated_at: '2025-03-17 09:30'
+      },
+      {
+        id: 'CC-104',
+        facility: '花月旅館・本館',
+        account: '高橋',
+        status: '見つからず',
+        channel: 'メール',
+        feature_text: '白いスニーカー。サイズ27cm。宿泊日は不明。',
+        stay_date: '',
+        room_number: '',
+        contact_phone: '',
+        contact_email: 'takahashi@example.com',
+        matched_lost_item_id: '',
+        shipping: { tracking_number: '', shipped_at: '', shipping_note: '' },
+        created_at: '2025-03-15 18:40',
+        updated_at: '2025-03-16 10:00'
+      }
     ];
 
     const tableBody = document.getElementById('tableBody');
     const detailPanel = document.getElementById('detailPanel');
+    const detailOverlay = document.getElementById('detailOverlay');
+    const detailPhoto = document.getElementById('detailPhoto');
+    const detailPhotoBadge = document.getElementById('detailPhotoBadge');
+    const detailPhotoNote = document.getElementById('detailPhotoNote');
     const toast = document.getElementById('toast');
+    const detailForm = {
+      id: document.getElementById('detailIdInput'),
+      category: document.getElementById('detailCategoryInput'),
+      status: document.getElementById('detailStatusInput'),
+      statusNote: document.getElementById('detailStatusNote'),
+      statusUpdated: document.getElementById('detailStatusUpdated'),
+      statusHistoryList: document.getElementById('detailStatusHistoryList'),
+      progress: document.getElementById('detailProgressInput'),
+      progressUpdated: document.getElementById('detailProgressUpdated'),
+      found: document.getElementById('detailFoundInput'),
+      stay: document.getElementById('detailStayInput'),
+      place: document.getElementById('detailPlaceInput'),
+      room: document.getElementById('detailRoomInput'),
+      color: document.getElementById('detailColorInput'),
+      brand: document.getElementById('detailBrandInput'),
+      feature: document.getElementById('detailFeatureInput'),
+      storage: document.getElementById('detailStorageInput'),
+      deadline: document.getElementById('detailDeadlineInput'),
+      deadlineHelp: document.getElementById('detailDeadlineHelp'),
+      customer: document.getElementById('detailCustomerInput'),
+      historyList: document.getElementById('detailHistoryList'),
+      historyType: document.getElementById('detailHistoryType'),
+      historyNote: document.getElementById('detailHistoryNote')
+    };
+
+    let currentItem = null;
+    let originalItem = null;
+    const progressStages = ['受付', '保管', '連絡', '完了'];
+    const progressSteps = Array.from(document.querySelectorAll('#detailProgressTrack .progress-step'));
+    const detailTabs = Array.from(document.querySelectorAll('#detailTabs .detail-tab'));
+    const detailTabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
     const badgeClass = (status) => {
       if (status === '保管中') return 'badge status-stock';
       if (status === '期限間近') return 'badge status-warning';
       if (status === '期限切れ') return 'badge status-danger';
+      if (status === '廃棄済') return 'badge status-danger';
       return 'badge status-complete';
     };
 
     function daysLabel(days) {
+      if (days === null || Number.isNaN(days)) return '期限未設定';
       if (days < 0) return `期限切れ (${Math.abs(days)}日超過)`;
       if (days === 0) return '本日まで';
       return `あと${days}日`;
     }
 
+    function calculateDaysLeft(dateStr) {
+      if (!dateStr) return null;
+      const today = new Date();
+      const base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const target = new Date(dateStr);
+      if (Number.isNaN(target.getTime())) return null;
+      return Math.round((target - base) / (1000 * 60 * 60 * 24));
+    }
+
+    function switchDetailTab(target) {
+      detailTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === target);
+      });
+      detailTabPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.tabPanel === target);
+      });
+    }
+
+    function updateDetailHeader() {
+      document.getElementById('detailId').textContent = detailForm.id.value || '-';
+      document.getElementById('detailCategory').textContent = detailForm.category.value || '未設定';
+      const statusEl = document.getElementById('detailStatus');
+      const statusValue = (currentItem && currentItem.status) || detailForm.status.value || '保管中';
+      statusEl.className = badgeClass(statusValue);
+      statusEl.textContent = statusValue;
+    }
+
+    function updateDetailPhoto(item) {
+      const available = hasImage(item);
+      if (detailPhoto) detailPhoto.src = resolveImage(item);
+      if (detailPhotoBadge) {
+        detailPhotoBadge.textContent = available ? '写真登録済み' : '写真未登録';
+        detailPhotoBadge.classList.toggle('missing', !available);
+        detailPhotoBadge.classList.toggle('ready', available);
+      }
+      if (detailPhotoNote) {
+        detailPhotoNote.textContent = available
+          ? '写真は登録済みです。'
+          : '写真が未登録のため仮画像を表示しています。';
+      }
+    }
+
+    function updateDeadlineHelp() {
+      const daysLeft = calculateDaysLeft(detailForm.deadline.value);
+      detailForm.deadlineHelp.textContent = daysLeft === null ? '' : daysLabel(daysLeft);
+    }
+
+    function formatTimestamp(date = new Date()) {
+      const pad = (value) => String(value).padStart(2, '0');
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    function renderProgressTrack(stage) {
+      const activeIndex = Math.max(0, progressStages.indexOf(stage));
+      progressSteps.forEach((step, idx) => {
+        step.classList.toggle('active', idx === activeIndex);
+        step.classList.toggle('done', idx < activeIndex);
+      });
+    }
+
+    function renderStatusHistory(list = []) {
+      detailForm.statusHistoryList.innerHTML = '';
+      if (!list.length) {
+        const empty = document.createElement('div');
+        empty.className = 'history-empty';
+        empty.textContent = 'ステータス履歴はまだありません。';
+        detailForm.statusHistoryList.appendChild(empty);
+        return;
+      }
+      list.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const head = document.createElement('div');
+        head.className = 'history-head';
+        const badge = document.createElement('span');
+        badge.className = `${badgeClass(entry.status)} history-badge`;
+        badge.textContent = entry.status || '未設定';
+        const time = document.createElement('div');
+        time.className = 'history-time';
+        time.textContent = entry.at || '-';
+        const note = document.createElement('div');
+        note.className = 'history-note';
+        note.textContent = entry.note || 'メモなし';
+        head.appendChild(badge);
+        head.appendChild(time);
+        item.appendChild(head);
+        item.appendChild(note);
+        detailForm.statusHistoryList.appendChild(item);
+      });
+    }
+
+    function renderHistory(list = []) {
+      detailForm.historyList.innerHTML = '';
+      if (!list.length) {
+        const empty = document.createElement('div');
+        empty.className = 'history-empty';
+        empty.textContent = '顧客連絡の履歴はまだありません。';
+        detailForm.historyList.appendChild(empty);
+        return;
+      }
+      list.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const head = document.createElement('div');
+        head.className = 'history-head';
+        const type = document.createElement('div');
+        type.className = 'history-type';
+        type.textContent = entry.type || 'メモ';
+        const time = document.createElement('div');
+        time.className = 'history-time';
+        time.textContent = entry.at || '-';
+        const note = document.createElement('div');
+        note.className = 'history-note';
+        note.textContent = entry.note || '内容なし';
+        head.appendChild(type);
+        head.appendChild(time);
+        item.appendChild(head);
+        item.appendChild(note);
+        detailForm.historyList.appendChild(item);
+      });
+    }
+
+    function recordStatusUpdate({ status, note }) {
+      if (!currentItem) return false;
+      const nextStatus = status || detailForm.status.value || currentItem.status || '保管中';
+      const memo = (note || '').trim();
+      const hasChange = nextStatus !== currentItem.status;
+      if (!hasChange && !memo) {
+        showToast('ステータス変更またはメモを入力してください');
+        return false;
+      }
+      const timestamp = formatTimestamp();
+      if (!Array.isArray(currentItem.statusHistory)) currentItem.statusHistory = [];
+      currentItem.status = nextStatus;
+      currentItem.statusUpdated = timestamp;
+      currentItem.statusHistory.unshift({ at: timestamp, status: nextStatus, note: memo });
+      detailForm.status.value = nextStatus;
+      detailForm.statusNote.value = '';
+      detailForm.statusUpdated.textContent = timestamp;
+      renderStatusHistory(currentItem.statusHistory);
+      if (['返却済', '警察引渡し', '廃棄済'].includes(nextStatus) && currentItem.progress !== '完了') {
+        currentItem.progress = '完了';
+        currentItem.progressUpdated = timestamp;
+        detailForm.progress.value = '完了';
+        detailForm.progressUpdated.textContent = timestamp;
+        renderProgressTrack(detailForm.progress.value);
+      }
+      updateDetailHeader();
+      filterData();
+      const row = tableBody.querySelector(`tr[data-id="${currentItem.id}"]`);
+      if (row) row.classList.add('selected-row');
+      originalItem = JSON.parse(JSON.stringify(currentItem));
+      return true;
+    }
+
+    function fillDetailForm(item) {
+      detailForm.id.value = item.id || '';
+      detailForm.category.value = item.category || '';
+      detailForm.status.value = item.status || '保管中';
+      detailForm.statusUpdated.textContent = item.statusUpdated || (item.statusHistory && item.statusHistory[0] && item.statusHistory[0].at) || '-';
+      detailForm.statusNote.value = '';
+      detailForm.progress.value = progressStages.includes(item.progress) ? item.progress : progressStages[0];
+      detailForm.progressUpdated.textContent = item.progressUpdated || '-';
+      detailForm.found.value = item.date || '';
+      detailForm.stay.value = item.stay || '';
+      detailForm.place.value = item.place || '';
+      detailForm.room.value = item.room || '';
+      detailForm.color.value = item.color || '';
+      detailForm.brand.value = item.brand || '';
+      detailForm.feature.value = item.feature || '';
+      detailForm.storage.value = item.storage || '';
+      detailForm.deadline.value = item.deadline || '';
+      detailForm.customer.value = item.customer || '';
+      detailForm.historyNote.value = '';
+      updateDetailHeader();
+      updateDeadlineHelp();
+      renderProgressTrack(detailForm.progress.value);
+      renderStatusHistory(item.statusHistory || []);
+      renderHistory(item.history || []);
+    }
+
     function renderTable(list = data) {
       tableBody.innerHTML = '';
       list.forEach((item, idx) => {
+        const imageSrc = resolveImage(item);
         const tr = document.createElement('tr');
+        tr.dataset.id = item.id;
         tr.style.animationDelay = `${idx * 40}ms`;
         tr.innerHTML = `
-          <td><img class="thumb" src="${item.image}" alt=""></td>
+          <td><img class="thumb" src="${imageSrc}" alt=""></td>
           <td style="font-weight:700;color:var(--heading);">${item.id}</td>
           <td>${item.category}</td>
           <td>${item.date}</td>
@@ -1198,27 +2764,126 @@
     }
 
     function openDetail(item) {
-      document.getElementById('detailId').textContent = item.id;
-      document.getElementById('detailCategory').textContent = item.category;
-      const statusEl = document.getElementById('detailStatus');
-      statusEl.className = badgeClass(item.status);
-      statusEl.textContent = item.status;
-      document.getElementById('detailIdRef').textContent = item.id;
-      document.getElementById('detailCategoryRef').textContent = item.category;
-      document.getElementById('detailStatusRef').textContent = item.status;
-      document.getElementById('detailPhoto').src = item.image;
-      document.getElementById('detailFound').textContent = item.date;
-      document.getElementById('detailStay').textContent = item.stay || '―';
-      document.getElementById('detailPlace').textContent = item.place;
-      document.getElementById('detailRoom').textContent = item.room || '―';
-      document.getElementById('detailMeta').textContent = `${item.color} / ${item.brand}`;
-      document.getElementById('detailFeature').textContent = item.feature;
-      document.getElementById('detailStorage').textContent = item.storage;
-      document.getElementById('detailDeadline').textContent = `${item.deadline}（${daysLabel(item.daysLeft)}）`;
+      currentItem = item;
+      originalItem = JSON.parse(JSON.stringify(item));
+      updateDetailPhoto(item);
+      fillDetailForm(item);
+      switchDetailTab('detail');
       detailPanel.classList.add('open');
+      detailOverlay.classList.add('show');
+      document.body.classList.add('modal-open');
     }
 
-    document.getElementById('closeDetail').addEventListener('click', () => detailPanel.classList.remove('open'));
+    function closeDetail() {
+      detailPanel.classList.remove('open');
+      detailOverlay.classList.remove('show');
+      document.body.classList.remove('modal-open');
+      currentItem = null;
+      originalItem = null;
+    }
+
+    document.getElementById('closeDetail').addEventListener('click', closeDetail);
+    detailOverlay.addEventListener('click', closeDetail);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && detailPanel.classList.contains('open')) {
+        closeDetail();
+      }
+    });
+
+    detailForm.category.addEventListener('change', updateDetailHeader);
+    detailForm.deadline.addEventListener('change', updateDeadlineHelp);
+    detailForm.progress.addEventListener('change', () => {
+      renderProgressTrack(detailForm.progress.value);
+    });
+    progressSteps.forEach(step => {
+      step.addEventListener('click', () => {
+        detailForm.progress.value = step.dataset.step;
+        renderProgressTrack(detailForm.progress.value);
+      });
+    });
+    detailTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchDetailTab(tab.dataset.tab);
+      });
+    });
+
+    document.getElementById('recordStatus').addEventListener('click', () => {
+      if (!currentItem) return;
+      const recorded = recordStatusUpdate({ status: detailForm.status.value, note: detailForm.statusNote.value });
+      if (recorded) showToast('ステータスを記録しました');
+    });
+    document.getElementById('clearStatusNote').addEventListener('click', () => {
+      detailForm.statusNote.value = '';
+    });
+
+    function addHistoryEntry(entry) {
+      if (!currentItem) return;
+      if (!Array.isArray(currentItem.history)) currentItem.history = [];
+      currentItem.history.unshift(entry);
+      if (originalItem) {
+        if (!Array.isArray(originalItem.history)) originalItem.history = [];
+        originalItem.history.unshift(entry);
+      }
+      renderHistory(currentItem.history);
+    }
+
+    function saveDetail() {
+      if (!currentItem) return;
+      currentItem.category = detailForm.category.value.trim();
+      const nextProgress = detailForm.progress.value.trim() || progressStages[0];
+      if (nextProgress !== currentItem.progress) {
+        currentItem.progress = nextProgress;
+        currentItem.progressUpdated = formatTimestamp();
+      }
+      currentItem.date = detailForm.found.value;
+      currentItem.stay = detailForm.stay.value;
+      currentItem.place = detailForm.place.value.trim();
+      currentItem.room = detailForm.room.value.trim();
+      currentItem.color = detailForm.color.value.trim();
+      currentItem.brand = detailForm.brand.value.trim();
+      currentItem.feature = detailForm.feature.value.trim();
+      currentItem.storage = detailForm.storage.value.trim();
+      currentItem.deadline = detailForm.deadline.value;
+      currentItem.daysLeft = calculateDaysLeft(currentItem.deadline);
+      currentItem.customer = detailForm.customer.value.trim();
+      updateDetailHeader();
+      updateDeadlineHelp();
+      renderProgressTrack(detailForm.progress.value);
+      detailForm.progressUpdated.textContent = currentItem.progressUpdated || '-';
+      originalItem = JSON.parse(JSON.stringify(currentItem));
+      filterData();
+      const row = tableBody.querySelector(`tr[data-id="${currentItem.id}"]`);
+      if (row) row.classList.add('selected-row');
+      showToast('編集内容を保存しました');
+    }
+
+    function resetDetail() {
+      if (!originalItem) return;
+      fillDetailForm(originalItem);
+      showToast('変更を破棄しました');
+    }
+
+    document.getElementById('saveDetail').addEventListener('click', saveDetail);
+    document.getElementById('resetDetail').addEventListener('click', resetDetail);
+    document.getElementById('addHistory').addEventListener('click', () => {
+      if (!currentItem) return;
+      const note = detailForm.historyNote.value.trim();
+      if (!note) {
+        showToast('対応内容を入力してください');
+        detailForm.historyNote.focus();
+        return;
+      }
+      addHistoryEntry({
+        at: formatTimestamp(),
+        type: detailForm.historyType.value || 'メモ',
+        note
+      });
+      detailForm.historyNote.value = '';
+      showToast('対応履歴を追加しました');
+    });
+    document.getElementById('clearHistoryInput').addEventListener('click', () => {
+      detailForm.historyNote.value = '';
+    });
 
     function showToast(message) {
       toast.textContent = message;
@@ -1228,7 +2893,15 @@
 
     detailPanel.querySelectorAll('[data-update]').forEach(btn => {
       btn.addEventListener('click', () => {
-        showToast(`${document.getElementById('detailId').textContent} を「${btn.dataset.update}」に更新しました`);
+        if (!currentItem) return;
+        const actionLabel = btn.dataset.update;
+        const recorded = recordStatusUpdate({
+          status: actionLabel,
+          note: 'アクションボタンで更新'
+        });
+        if (recorded) {
+          showToast(`${currentItem.id} を「${actionLabel}」に更新しました`);
+        }
       });
     });
 
@@ -1241,6 +2914,7 @@
     const viewList = document.getElementById('viewList');
     const viewDeadline = document.getElementById('viewDeadline');
     const viewSettings = document.getElementById('viewSettings');
+    const viewContact = document.getElementById('viewContact');
     const viewMatch = document.getElementById('viewMatch');
     const tableMetaText = document.getElementById('tableMetaText');
 
@@ -1253,7 +2927,21 @@
       const q = keyword.value.trim().toLowerCase();
       const category = categorySelect.value;
       if (q) {
-        list = list.filter(d => Object.values(d).join(' ').toLowerCase().includes(q));
+        list = list.filter(d => {
+          const values = Object.values(d).flatMap((val) => {
+            if (Array.isArray(val)) {
+              return val.flatMap(entry => Object.values(entry));
+            }
+            return [val];
+          });
+          return values.some((val) => {
+            if (val === null || val === undefined) return false;
+            if (typeof val === 'string' || typeof val === 'number') {
+              return String(val).toLowerCase().includes(q);
+            }
+            return false;
+          });
+        });
       }
       if (category !== 'all') {
         list = list.filter(d => d.category === category);
@@ -1269,7 +2957,7 @@
       filterChips.innerHTML = '';
       if (keyword.value) addChip(`キーワード: ${keyword.value}`, () => { keyword.value=''; filterData(); });
       if (categorySelect.value !== 'all') addChip(`カテゴリ: ${categorySelect.value}`, () => { categorySelect.value='all'; filterData(); });
-      if (activeStatuses.length && activeStatuses.length !== 4) addChip(`ステータス: ${activeStatuses.join(', ')}`, () => { activeStatuses=['保管中']; updateStatusPills(); filterData(); });
+      if (activeStatuses.length && activeStatuses.length !== statusPills.length) addChip(`ステータス: ${activeStatuses.join(', ')}`, () => { activeStatuses=['保管中']; updateStatusPills(); filterData(); });
     }
     function addChip(text, onRemove) {
       const chip = document.createElement('div');
@@ -1319,10 +3007,12 @@
       viewList.style.display = target === 'list' ? '' : 'none';
       viewDeadline.style.display = target === 'deadline' ? '' : 'none';
       viewSettings.style.display = target === 'settings' ? '' : 'none';
+      viewContact.style.display = target === 'contact' ? '' : 'none';
       viewMatch.style.display = target === 'match' ? '' : 'none';
       if (target === 'list') tableMetaText.textContent = '全 42件 / 表示 10件';
       if (target === 'deadline') tableMetaText.textContent = '期限カード一覧';
       if (target === 'settings') tableMetaText.textContent = '設定ショートカット';
+      if (target === 'contact') tableMetaText.textContent = '問い合わせ対応';
       if (target === 'match') tableMetaText.textContent = '写真で照合';
     }
 
@@ -1331,6 +3021,661 @@
         switchMainTab(tab.dataset.tab);
       });
     });
+
+    const settingsTabSwitch = document.getElementById('settingsTabSwitch');
+    const settingsPanels = Array.from(document.querySelectorAll('[data-settings-panel]'));
+    let activeSettingsTab = 'pickup';
+
+    if (settingsTabSwitch) {
+      const initial = settingsTabSwitch.querySelector('.tab.active');
+      if (initial && initial.dataset.settingsTab) activeSettingsTab = initial.dataset.settingsTab;
+      const settingsTabs = Array.from(settingsTabSwitch.querySelectorAll('.tab'));
+      const switchSettingsTab = (target) => {
+        activeSettingsTab = target;
+        settingsTabs.forEach(tab => {
+          tab.classList.toggle('active', tab.dataset.settingsTab === target);
+        });
+        settingsPanels.forEach(panel => {
+          panel.classList.toggle('active', panel.dataset.settingsPanel === target);
+        });
+      };
+      settingsTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          switchSettingsTab(tab.dataset.settingsTab);
+        });
+      });
+    }
+
+    const settingsAddBtn = document.getElementById('settingsAddBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsModalOverlay = document.getElementById('settingsModalOverlay');
+    const settingsModalTitle = document.getElementById('settingsModalTitle');
+    const settingsModalSub = document.getElementById('settingsModalSub');
+    const settingsModalBody = document.getElementById('settingsModalBody');
+    const settingsModalSave = document.getElementById('settingsModalSave');
+    const settingsModalCancel = document.getElementById('settingsModalCancel');
+    const settingsModalClose = document.getElementById('settingsModalClose');
+
+    const settingsData = {
+      pickup: [
+        { id: 'pickup-1', label: '客室', area: '本館 3F', sort_order: 10, is_active: true },
+        { id: 'pickup-2', label: 'ロッカー前', area: '1F 西', sort_order: 20, is_active: true },
+        { id: 'pickup-3', label: '受付前', area: 'ロビー', sort_order: 30, is_active: true },
+        { id: 'pickup-4', label: '駐車場', area: '屋外', sort_order: 40, is_active: true },
+        { id: 'pickup-5', label: 'トイレ', area: '1F 東', sort_order: 50, is_active: false }
+      ],
+      storage: [
+        { id: 'storage-1', name: 'フロント棚B-2', area_type: 'フロント棚', code_prefix: 'FRB', default_retention_days: 30, sort_order: 10, is_active: true },
+        { id: 'storage-2', name: '倉庫A-3', area_type: '倉庫', code_prefix: 'WHA', default_retention_days: 60, sort_order: 20, is_active: true },
+        { id: 'storage-3', name: 'バックヤード冷蔵', area_type: 'バックヤード', code_prefix: 'BYD', default_retention_days: null, sort_order: 30, is_active: true },
+        { id: 'storage-4', name: '臨時保管', area_type: 'その他', code_prefix: 'TMP', default_retention_days: 7, sort_order: 40, is_active: false }
+      ],
+      category: [
+        { id: 'category-1', base_category: '財布', label: '財布・カード類', icon_emoji: '👛', sort_order: 10, is_active: true },
+        { id: 'category-2', base_category: 'スマートフォン', label: 'スマホ/端末', icon_emoji: '📱', sort_order: 20, is_active: true },
+        { id: 'category-3', base_category: '鍵', label: '鍵・カードキー', icon_emoji: '🔑', sort_order: 30, is_active: true },
+        { id: 'category-4', base_category: '衣類', label: '衣類/タオル', icon_emoji: '🧥', sort_order: 40, is_active: false }
+      ]
+    };
+
+    const settingsIdCounters = {
+      pickup: settingsData.pickup.length,
+      storage: settingsData.storage.length,
+      category: settingsData.category.length
+    };
+
+    const settingsSelection = { pickup: null, storage: null, category: null };
+    const areaTypeOptions = ['倉庫', 'フロント棚', 'バックヤード', 'その他'];
+    const baseCategoryOptions = ['財布', 'カバン', 'スマートフォン', '充電器', '鍵', '衣類', 'ファッション小物', 'メガネ', '化粧品', '靴', '傘', 'その他'];
+    const settingsTableBodies = {
+      pickup: document.getElementById('settingsPickupBody'),
+      storage: document.getElementById('settingsStorageBody'),
+      category: document.getElementById('settingsCategoryBody')
+    };
+    let settingsModalState = { tab: 'pickup', mode: 'add', itemId: null };
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function nextSettingsId(tab) {
+      settingsIdCounters[tab] += 1;
+      return `${tab}-${settingsIdCounters[tab]}`;
+    }
+
+    function normalizeSortOrder(value) {
+      if (value === null || value === undefined || value === '') return 9999;
+      const num = Number(value);
+      return Number.isFinite(num) ? num : 9999;
+    }
+
+    function nextSortOrder(list) {
+      const values = list
+        .map(item => item.sort_order)
+        .filter(value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)))
+        .map(value => Number(value));
+      const max = values.length ? Math.max(...values) : 0;
+      return max + 10;
+    }
+
+    function statusPill(active) {
+      return active ? '<span class="status-pill">有効</span>' : '<span class="status-pill inactive">停止</span>';
+    }
+
+    function sortCell(item) {
+      return item.sort_order !== null && item.sort_order !== undefined ? item.sort_order : '-';
+    }
+
+    function renderPickupTable() {
+      const body = settingsTableBodies.pickup;
+      if (!body) return;
+      const list = [...settingsData.pickup].sort((a, b) => normalizeSortOrder(a.sort_order) - normalizeSortOrder(b.sort_order));
+      body.innerHTML = '';
+      if (!list.length) {
+        body.innerHTML = '<tr><td class="settings-empty" colspan="5">拾得場所がまだありません。</td></tr>';
+        return;
+      }
+      list.forEach((item, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === list.length - 1;
+        const tr = document.createElement('tr');
+        tr.dataset.id = item.id;
+        if (settingsSelection.pickup === item.id) tr.classList.add('selected-row');
+        tr.innerHTML = `
+          <td>${escapeHtml(item.label)}</td>
+          <td>${item.area ? escapeHtml(item.area) : '-'}</td>
+          <td>${sortCell(item)}</td>
+          <td>${statusPill(item.is_active)}</td>
+          <td>
+            <div class="settings-actions">
+              <button class="btn-compact btn-neutral" data-action="up" data-tab="pickup" data-id="${item.id}" ${isFirst ? 'disabled' : ''}>上へ</button>
+              <button class="btn-compact btn-neutral" data-action="down" data-tab="pickup" data-id="${item.id}" ${isLast ? 'disabled' : ''}>下へ</button>
+              <button class="btn-outline btn-compact" data-action="edit" data-tab="pickup" data-id="${item.id}">編集</button>
+              <button class="btn-compact ${item.is_active ? 'btn-danger' : 'btn-success'}" data-action="toggle" data-tab="pickup" data-id="${item.id}">${item.is_active ? '停止' : '有効化'}</button>
+            </div>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderStorageTable() {
+      const body = settingsTableBodies.storage;
+      if (!body) return;
+      const list = [...settingsData.storage].sort((a, b) => normalizeSortOrder(a.sort_order) - normalizeSortOrder(b.sort_order));
+      body.innerHTML = '';
+      if (!list.length) {
+        body.innerHTML = '<tr><td class="settings-empty" colspan="7">保管場所がまだありません。</td></tr>';
+        return;
+      }
+      list.forEach((item, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === list.length - 1;
+        const retention = item.default_retention_days === null || item.default_retention_days === undefined || item.default_retention_days === '' ? '未設定' : item.default_retention_days;
+        const tr = document.createElement('tr');
+        tr.dataset.id = item.id;
+        if (settingsSelection.storage === item.id) tr.classList.add('selected-row');
+        tr.innerHTML = `
+          <td>${escapeHtml(item.name)}</td>
+          <td>${escapeHtml(item.area_type)}</td>
+          <td>${escapeHtml(item.code_prefix)}</td>
+          <td>${retention}</td>
+          <td>${sortCell(item)}</td>
+          <td>${statusPill(item.is_active)}</td>
+          <td>
+            <div class="settings-actions">
+              <button class="btn-compact btn-neutral" data-action="up" data-tab="storage" data-id="${item.id}" ${isFirst ? 'disabled' : ''}>上へ</button>
+              <button class="btn-compact btn-neutral" data-action="down" data-tab="storage" data-id="${item.id}" ${isLast ? 'disabled' : ''}>下へ</button>
+              <button class="btn-outline btn-compact" data-action="edit" data-tab="storage" data-id="${item.id}">編集</button>
+              <button class="btn-compact ${item.is_active ? 'btn-danger' : 'btn-success'}" data-action="toggle" data-tab="storage" data-id="${item.id}">${item.is_active ? '停止' : '有効化'}</button>
+            </div>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderCategoryTable() {
+      const body = settingsTableBodies.category;
+      if (!body) return;
+      const list = [...settingsData.category].sort((a, b) => normalizeSortOrder(a.sort_order) - normalizeSortOrder(b.sort_order));
+      body.innerHTML = '';
+      if (!list.length) {
+        body.innerHTML = '<tr><td class="settings-empty" colspan="6">カテゴリがまだありません。</td></tr>';
+        return;
+      }
+      list.forEach((item, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === list.length - 1;
+        const tr = document.createElement('tr');
+        tr.dataset.id = item.id;
+        if (settingsSelection.category === item.id) tr.classList.add('selected-row');
+        tr.innerHTML = `
+          <td>${escapeHtml(item.base_category)}</td>
+          <td>${item.label ? escapeHtml(item.label) : '-'}</td>
+          <td>${item.icon_emoji ? escapeHtml(item.icon_emoji) : '-'}</td>
+          <td>${sortCell(item)}</td>
+          <td>${statusPill(item.is_active)}</td>
+          <td>
+            <div class="settings-actions">
+              <button class="btn-compact btn-neutral" data-action="up" data-tab="category" data-id="${item.id}" ${isFirst ? 'disabled' : ''}>上へ</button>
+              <button class="btn-compact btn-neutral" data-action="down" data-tab="category" data-id="${item.id}" ${isLast ? 'disabled' : ''}>下へ</button>
+              <button class="btn-outline btn-compact" data-action="edit" data-tab="category" data-id="${item.id}">編集</button>
+              <button class="btn-compact ${item.is_active ? 'btn-danger' : 'btn-success'}" data-action="toggle" data-tab="category" data-id="${item.id}">${item.is_active ? '停止' : '有効化'}</button>
+            </div>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderSettingsTables() {
+      renderPickupTable();
+      renderStorageTable();
+      renderCategoryTable();
+    }
+
+    function ensureSortOrders(tab) {
+      const list = settingsData[tab];
+      const seen = new Set();
+      let hasDuplicate = false;
+      const hasInvalid = list.some(item => {
+        if (item.sort_order === null || item.sort_order === undefined || item.sort_order === '') return true;
+        const num = Number(item.sort_order);
+        if (!Number.isFinite(num)) return true;
+        if (seen.has(num)) hasDuplicate = true;
+        seen.add(num);
+        return false;
+      });
+      if (hasDuplicate || hasInvalid) {
+        const sorted = [...list].sort((a, b) => normalizeSortOrder(a.sort_order) - normalizeSortOrder(b.sort_order));
+        sorted.forEach((item, idx) => {
+          item.sort_order = (idx + 1) * 10;
+        });
+        return;
+      }
+    }
+
+    function moveSettingsItem(tab, direction, id) {
+      ensureSortOrders(tab);
+      const sorted = [...settingsData[tab]].sort((a, b) => normalizeSortOrder(a.sort_order) - normalizeSortOrder(b.sort_order));
+      const index = sorted.findIndex(item => item.id === id);
+      if (index < 0) return;
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= sorted.length) return;
+      const current = sorted[index];
+      const target = sorted[targetIndex];
+      const temp = current.sort_order;
+      current.sort_order = target.sort_order;
+      target.sort_order = temp;
+      renderSettingsTables();
+      showToast('順番を変更しました');
+    }
+
+    function openSettingsModal(tab, mode, itemId = null) {
+      if (!settingsModal || !settingsModalOverlay) return;
+      const labels = { pickup: '拾得場所', storage: '保管場所', category: 'カテゴリ' };
+      const subText = {
+        pickup: 'labelは必須。areaは任意です。',
+        storage: 'name と code_prefix は必須。期限は未設定ならFacilityへ。',
+        category: 'base_categoryは固定。表示名と並び順を調整できます。'
+      };
+      const isEdit = mode === 'edit';
+      const item = isEdit ? settingsData[tab].find(entry => entry.id === itemId) : null;
+      if (isEdit && !item) {
+        showToast('編集対象が見つかりません');
+        return;
+      }
+      settingsModalState = { tab, mode, itemId: item ? item.id : null };
+      settingsModalTitle.textContent = `${labels[tab]}を${isEdit ? '編集' : '追加'}`;
+      settingsModalSub.textContent = subText[tab];
+      settingsModalBody.innerHTML = renderSettingsForm(tab, item, mode);
+      settingsModal.classList.add('open');
+      settingsModalOverlay.classList.add('show');
+      document.body.classList.add('modal-open');
+      const firstInput = settingsModalBody.querySelector('input, select, textarea');
+      if (firstInput) firstInput.focus();
+    }
+
+    function closeSettingsModal() {
+      if (!settingsModal || !settingsModalOverlay) return;
+      settingsModal.classList.remove('open');
+      settingsModalOverlay.classList.remove('show');
+      if (!detailPanel.classList.contains('open')) {
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    function buildOptions(options, selected, includeEmpty = false) {
+      const emptyOption = includeEmpty ? '<option value="">選択してください</option>' : '';
+      return emptyOption + options.map(option => {
+        const isSelected = option === selected ? 'selected' : '';
+        return `<option value="${escapeHtml(option)}" ${isSelected}>${escapeHtml(option)}</option>`;
+      }).join('');
+    }
+
+    function renderSettingsForm(tab, item, mode) {
+      const isEdit = mode === 'edit';
+      if (tab === 'pickup') {
+        const sortValue = item ? (item.sort_order !== null && item.sort_order !== undefined ? item.sort_order : '') : nextSortOrder(settingsData.pickup);
+        const active = item ? item.is_active : true;
+        const labelValue = item && item.label ? item.label : '';
+        const areaValue = item && item.area ? item.area : '';
+        return `
+          <div class="settings-section">
+            <div class="settings-section-title">基本情報</div>
+            <div class="settings-section-sub">施設の誰が見ても迷わない呼び方に統一します。</div>
+            <div class="settings-form-grid">
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">label</div>
+                  <span class="settings-required">必須</span>
+                </div>
+                <input type="text" data-field="label" placeholder="例：客室" value="${escapeHtml(labelValue)}">
+                <div class="settings-helper">例：客室 / ロッカー前 / 受付前</div>
+              </div>
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">area</div>
+                </div>
+                <input type="text" data-field="area" placeholder="例：本館 3F" value="${escapeHtml(areaValue)}">
+                <div class="settings-helper">任意。フロアや館内エリアを揃えると検索が安定。</div>
+              </div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">表示/有効</div>
+            <div class="settings-form-grid">
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">sort_order</div>
+                </div>
+                <input type="number" data-field="sort_order" value="${sortValue}">
+                <div class="settings-helper">小さいほど上に表示されます。</div>
+              </div>
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">is_active</div>
+                </div>
+                <label class="settings-toggle">
+                  <input type="checkbox" data-field="is_active" ${active ? 'checked' : ''}>
+                  有効
+                </label>
+                <div class="settings-helper">停止しても履歴データは保持されます。</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      if (tab === 'storage') {
+        const sortValue = item ? (item.sort_order !== null && item.sort_order !== undefined ? item.sort_order : '') : nextSortOrder(settingsData.storage);
+        const active = item ? item.is_active : true;
+        const retentionValue = item && item.default_retention_days !== null && item.default_retention_days !== undefined ? item.default_retention_days : '';
+        const nameValue = item && item.name ? item.name : '';
+        const areaType = item && item.area_type ? item.area_type : areaTypeOptions[0];
+        const codePrefixValue = item && item.code_prefix ? item.code_prefix : '';
+        return `
+          <div class="settings-section">
+            <div class="settings-section-title">基本情報</div>
+            <div class="settings-section-sub">保管場所の呼び方と区分を揃えます。</div>
+            <div class="settings-form-grid">
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">name</div>
+                  <span class="settings-required">必須</span>
+                </div>
+                <input type="text" data-field="name" placeholder="例：フロント棚B-2" value="${escapeHtml(nameValue)}">
+                <div class="settings-helper">棚番や倉庫名まで含めると検索が早いです。</div>
+              </div>
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">area_type</div>
+                </div>
+                <select data-field="area_type">${buildOptions(areaTypeOptions, areaType)}</select>
+                <div class="settings-helper">運用上の大分類（倉庫/フロント棚など）。</div>
+              </div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">採番/期限</div>
+            <div class="settings-section-sub">管理番号の接頭辞と保管期限に連動します。</div>
+            <div class="settings-form-grid">
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">code_prefix</div>
+                  <span class="settings-required">必須</span>
+                </div>
+                <input type="text" data-field="code_prefix" placeholder="例：FRB" value="${escapeHtml(codePrefixValue)}">
+                <div class="settings-helper">英字3文字など短いコードが運用しやすいです。</div>
+              </div>
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">default_retention_days</div>
+                </div>
+                <input type="number" data-field="default_retention_days" placeholder="未設定なら空欄" value="${retentionValue}">
+                <div class="settings-helper">未設定の場合は施設全体の設定を使用。</div>
+              </div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">表示/有効</div>
+            <div class="settings-form-grid">
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">sort_order</div>
+                </div>
+                <input type="number" data-field="sort_order" value="${sortValue}">
+                <div class="settings-helper">小さいほど上に表示されます。</div>
+              </div>
+              <div class="settings-field">
+                <div class="settings-label-row">
+                  <div class="label">is_active</div>
+                </div>
+                <label class="settings-toggle">
+                  <input type="checkbox" data-field="is_active" ${active ? 'checked' : ''}>
+                  有効
+                </label>
+                <div class="settings-helper">停止すると登録候補から外れます。</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      const sortValue = item ? (item.sort_order !== null && item.sort_order !== undefined ? item.sort_order : '') : nextSortOrder(settingsData.category);
+      const active = item ? item.is_active : true;
+      const baseCategory = item && item.base_category ? item.base_category : '';
+      const labelValue = item && item.label ? item.label : '';
+      const iconValue = item && item.icon_emoji ? item.icon_emoji : '';
+      const baseOptions = buildOptions(baseCategoryOptions, baseCategory, !isEdit);
+      return `
+        <div class="settings-section">
+          <div class="settings-section-title">ベース/表示名</div>
+          <div class="settings-section-sub">ベースカテゴリは固定で、表示名だけ施設別に調整できます。</div>
+          <div class="settings-form-grid">
+            <div class="settings-field">
+              <div class="settings-label-row">
+                <div class="label">base_category</div>
+                <span class="settings-required">必須</span>
+              </div>
+              <select data-field="base_category" ${isEdit ? 'disabled' : ''}>${baseOptions}</select>
+              <div class="settings-helper">未選択のまま保存できません。</div>
+            </div>
+            <div class="settings-field">
+              <div class="settings-label-row">
+                <div class="label">label</div>
+              </div>
+              <input type="text" data-field="label" placeholder="例：財布・カード類" value="${escapeHtml(labelValue)}">
+              <div class="settings-helper">未入力の場合はベース名が自動で入ります。</div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">アイコン/並び順</div>
+          <div class="settings-form-grid">
+            <div class="settings-field">
+              <div class="settings-label-row">
+                <div class="label">icon_emoji</div>
+              </div>
+              <input type="text" data-field="icon_emoji" placeholder="例：👛" value="${escapeHtml(iconValue)}">
+              <div class="settings-helper">任意。現場で見分けやすい絵文字を。</div>
+            </div>
+            <div class="settings-field">
+              <div class="settings-label-row">
+                <div class="label">sort_order</div>
+              </div>
+              <input type="number" data-field="sort_order" value="${sortValue}">
+              <div class="settings-helper">小さいほど上に表示されます。</div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">表示/有効</div>
+          <div class="settings-form-grid">
+            <div class="settings-field">
+              <div class="settings-label-row">
+                <div class="label">is_active</div>
+              </div>
+              <label class="settings-toggle">
+                <input type="checkbox" data-field="is_active" ${active ? 'checked' : ''}>
+                有効
+              </label>
+              <div class="settings-helper">停止するとカテゴリボタンは非表示。</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function readNumberField(input) {
+      const raw = input.value.trim();
+      if (!raw) return null;
+      const num = Number(raw);
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function readSettingsForm(tab) {
+      const getField = (name) => settingsModalBody.querySelector(`[data-field="${name}"]`);
+      if (tab === 'pickup') {
+        const label = getField('label').value.trim();
+        if (!label) {
+          showToast('label を入力してください');
+          getField('label').focus();
+          return null;
+        }
+        return {
+          label,
+          area: getField('area').value.trim(),
+          sort_order: readNumberField(getField('sort_order')),
+          is_active: getField('is_active').checked
+        };
+      }
+      if (tab === 'storage') {
+        const name = getField('name').value.trim();
+        const codePrefix = getField('code_prefix').value.trim();
+        if (!name) {
+          showToast('name を入力してください');
+          getField('name').focus();
+          return null;
+        }
+        if (!codePrefix) {
+          showToast('code_prefix を入力してください');
+          getField('code_prefix').focus();
+          return null;
+        }
+        return {
+          name,
+          area_type: getField('area_type').value,
+          code_prefix: codePrefix,
+          default_retention_days: readNumberField(getField('default_retention_days')),
+          sort_order: readNumberField(getField('sort_order')),
+          is_active: getField('is_active').checked
+        };
+      }
+      const baseCategory = getField('base_category').value.trim();
+      if (!baseCategory) {
+        showToast('base_category を選択してください');
+        getField('base_category').focus();
+        return null;
+      }
+      let label = getField('label').value.trim();
+      if (!label) label = baseCategory;
+      return {
+        base_category: baseCategory,
+        label,
+        icon_emoji: getField('icon_emoji').value.trim(),
+        sort_order: readNumberField(getField('sort_order')),
+        is_active: getField('is_active').checked
+      };
+    }
+
+    function saveSettingsModal() {
+      const { tab, mode, itemId } = settingsModalState;
+      const values = readSettingsForm(tab);
+      if (!values) return;
+      if (tab === 'category' && mode === 'add') {
+        const exists = settingsData.category.some(entry => entry.base_category === values.base_category);
+        if (exists) {
+          showToast('このベースカテゴリは既に登録されています');
+          return;
+        }
+      }
+      if (mode === 'add') {
+        settingsData[tab].push({ id: nextSettingsId(tab), ...values });
+      } else {
+        const item = settingsData[tab].find(entry => entry.id === itemId);
+        if (!item) {
+          showToast('編集対象が見つかりません');
+          return;
+        }
+        Object.assign(item, values);
+      }
+      closeSettingsModal();
+      renderSettingsTables();
+      showToast('設定を保存しました');
+    }
+
+    function handleSettingsTableClick(tab, event) {
+      const actionBtn = event.target.closest('button[data-action]');
+      const row = event.target.closest('tr[data-id]');
+      if (actionBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        const action = actionBtn.dataset.action;
+        const rowId = actionBtn.dataset.id;
+        if (action === 'up' || action === 'down') {
+          moveSettingsItem(tab, action, rowId);
+          return;
+        }
+        if (action === 'edit') {
+          openSettingsModal(tab, 'edit', rowId);
+          return;
+        }
+        if (action === 'toggle') {
+          const item = settingsData[tab].find(entry => entry.id === rowId);
+          if (!item) return;
+          item.is_active = !item.is_active;
+          renderSettingsTables();
+          showToast(item.is_active ? '有効にしました' : '停止しました');
+        }
+        return;
+      }
+      if (row) {
+        settingsSelection[tab] = row.dataset.id;
+        renderSettingsTables();
+      }
+    }
+
+    Object.entries(settingsTableBodies).forEach(([tab, body]) => {
+      if (!body) return;
+      body.addEventListener('click', (event) => handleSettingsTableClick(tab, event));
+    });
+
+    if (viewSettings) {
+      viewSettings.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-settings-action]');
+        if (!button) return;
+        const panel = button.closest('[data-settings-panel]');
+        const tab = panel ? panel.dataset.settingsPanel : activeSettingsTab;
+        if (button.dataset.settingsAction === 'add') {
+          openSettingsModal(tab, 'add');
+          return;
+        }
+        if (button.dataset.settingsAction === 'edit') {
+          const selectedId = settingsSelection[tab];
+          if (!selectedId) {
+            showToast('編集する行を選択してください');
+            return;
+          }
+          openSettingsModal(tab, 'edit', selectedId);
+        }
+      });
+    }
+
+    if (settingsAddBtn) {
+      settingsAddBtn.addEventListener('click', () => {
+        openSettingsModal(activeSettingsTab, 'add');
+      });
+    }
+
+    if (settingsModalOverlay) {
+      settingsModalOverlay.addEventListener('click', closeSettingsModal);
+    }
+    if (settingsModalCancel) settingsModalCancel.addEventListener('click', closeSettingsModal);
+    if (settingsModalClose) settingsModalClose.addEventListener('click', closeSettingsModal);
+    if (settingsModalSave) settingsModalSave.addEventListener('click', saveSettingsModal);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && settingsModal && settingsModal.classList.contains('open')) {
+        closeSettingsModal();
+      }
+    });
+
+    renderSettingsTables();
 
     // Summary card clicks
     document.querySelectorAll('.card.clickable').forEach(card => {
@@ -1357,7 +3702,7 @@
             <span class="${badgeClass(item.status)}">${item.status}</span>
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
-            <img class="thumb" src="${item.image}" alt="">
+            <img class="thumb" src="${resolveImage(item)}" alt="">
             <div style="color:var(--muted); font-size:13px;">
               <div>保管期限: <strong style="color:var(--heading);">${item.deadline}</strong> (${daysLabel(item.daysLeft)})</div>
               <div>場所: ${item.place}</div>
@@ -1437,7 +3782,7 @@
         const card = document.createElement('div');
         card.className = 'match-card';
         card.innerHTML = `
-          <img src="${item.image}" alt="">
+          <img src="${resolveImage(item)}" alt="">
           <div class="body">
             <div class="title" style="font-weight:700;">${item.id}・${item.category}</div>
             <div class="tags">
@@ -1463,7 +3808,7 @@
 
     function selectMatch(item) {
       matchSelected = item;
-      matchPhoto.src = item.image;
+      matchPhoto.src = resolveImage(item);
       matchId.textContent = item.id;
       matchCategoryLabel.textContent = item.category;
       matchStatus.textContent = item.status;
@@ -1496,6 +3841,438 @@
     matchExclude.addEventListener('click', () => {
       if (matchSelected) showToast(`${matchSelected.id} を候補から外しました`);
     });
+
+    // Contact case (問い合わせ対応)
+    const contactList = document.getElementById('contactList');
+    const contactDetail = document.getElementById('contactDetail');
+    const contactMetaText = document.getElementById('contactMetaText');
+    const contactSearch = document.getElementById('contactSearch');
+    const contactStatusPills = Array.from(document.querySelectorAll('#contactStatusFilters .pill'));
+    const contactNewBtn = document.getElementById('contactNewBtn');
+
+    let contactFilterStatus = 'all';
+    let contactSearchQuery = '';
+    let currentCaseId = null;
+
+    const caseStatusClass = (status) => {
+      if (status === '対応中') return 'case-status in-progress';
+      if (status === '一致・返却予定') return 'case-status match';
+      if (status === '見つからず') return 'case-status miss';
+      return 'case-status close';
+    };
+
+    function getCaseById(id) {
+      return contactCases.find(item => item.id === id);
+    }
+
+    function truncateText(text, limit = 60) {
+      if (!text) return '';
+      const trimmed = text.trim();
+      if (trimmed.length <= limit) return trimmed;
+      return `${trimmed.slice(0, limit)}…`;
+    }
+
+    function matchesContactSearch(item, query) {
+      if (!query) return true;
+      const joined = [
+        item.id,
+        item.account,
+        item.status,
+        item.channel,
+        item.feature_text,
+        item.stay_date,
+        item.room_number,
+        item.contact_phone,
+        item.contact_email,
+        item.matched_lost_item_id
+      ].filter(Boolean).join(' ').toLowerCase();
+      return joined.includes(query);
+    }
+
+    function filteredContactCases() {
+      return contactCases.filter(item => {
+        if (contactFilterStatus !== 'all' && item.status !== contactFilterStatus) return false;
+        return matchesContactSearch(item, contactSearchQuery);
+      });
+    }
+
+    function nextContactCaseId() {
+      const numbers = contactCases
+        .map(item => Number(String(item.id).replace('CC-', '')))
+        .filter(num => Number.isFinite(num));
+      const next = numbers.length ? Math.max(...numbers) + 1 : 101;
+      return `CC-${String(next).padStart(3, '0')}`;
+    }
+
+    function renderContactList() {
+      if (!contactList || !contactMetaText) return;
+      const list = filteredContactCases();
+      contactMetaText.textContent = `全 ${contactCases.length}件 / 表示 ${list.length}件`;
+      contactList.innerHTML = '';
+      if (!list.length) {
+        contactList.innerHTML = '<div class="contact-empty">該当する問い合わせはありません。</div>';
+        return;
+      }
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'contact-card';
+        if (currentCaseId === item.id) card.classList.add('active');
+        const matchedItem = item.matched_lost_item_id ? data.find(d => d.id === item.matched_lost_item_id) : null;
+        const matchedLabel = matchedItem ? `${matchedItem.id}・${matchedItem.category}` : '未一致';
+        card.innerHTML = `
+          <div class="contact-card-head">
+            <div class="contact-card-title">${item.id} ${item.account ? `・${item.account}様` : ''}</div>
+            <span class="${caseStatusClass(item.status)}">${item.status}</span>
+          </div>
+          <div class="contact-meta-row">
+            <span class="contact-chip">${item.channel}</span>
+            <span class="contact-chip">${item.contact_phone || item.contact_email || '連絡先未入力'}</span>
+            <span class="contact-chip">一致: ${matchedLabel}</span>
+          </div>
+          <div class="contact-snippet">${truncateText(item.feature_text, 70)}</div>
+          <div class="contact-meta-row">
+            <span>最終更新: ${item.updated_at}</span>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          currentCaseId = item.id;
+          renderContactList();
+          renderContactDetail();
+        });
+        contactList.appendChild(card);
+      });
+    }
+
+    function renderContactDetail() {
+      if (!contactDetail) return;
+      if (!currentCaseId && contactCases.length) {
+        currentCaseId = contactCases[0].id;
+      }
+      const item = currentCaseId ? getCaseById(currentCaseId) : null;
+      if (!item) {
+        contactDetail.innerHTML = '<div class="contact-empty">問い合わせを選択してください。</div>';
+        return;
+      }
+      const matchedItem = item.matched_lost_item_id ? data.find(d => d.id === item.matched_lost_item_id) : null;
+      const matchedPhotoNote = matchedItem && !hasImage(matchedItem) ? '写真未登録' : '写真登録済み';
+      contactDetail.innerHTML = `
+        <div class="contact-detail-head">
+          <div>
+            <div class="contact-detail-id">${item.id}</div>
+            <div class="contact-detail-sub">最終更新: ${item.updated_at} / 作成: ${item.created_at}</div>
+          </div>
+          <div class="actions">
+            <button class="btn-outline" id="contactSaveBtn">保存</button>
+          </div>
+        </div>
+
+        <div class="contact-section">
+          <div class="contact-section-title">問い合わせ情報</div>
+          <div class="contact-grid">
+            <div class="field">
+              <div class="label">施設</div>
+              <input id="caseFacility" type="text" value="${item.facility || ''}">
+            </div>
+            <div class="field">
+              <div class="label">顧客名（任意）</div>
+              <input id="caseAccount" type="text" value="${item.account || ''}" placeholder="例）山田">
+            </div>
+            <div class="field">
+              <div class="label">ステータス</div>
+              <select id="caseStatus">
+                ${['対応中','一致・返却予定','見つからず','クローズ'].map(s => `<option ${item.status===s?'selected':''}>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field">
+              <div class="label">チャネル</div>
+              <select id="caseChannel">
+                ${['電話','LINE','メール','その他'].map(c => `<option ${item.channel===c?'selected':''}>${c}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">聞き取りメモ</div>
+            <textarea id="caseFeatureText" class="contact-textarea" placeholder="特徴・色・ブランド・拾得場所など">${item.feature_text || ''}</textarea>
+          </div>
+          <div class="contact-grid">
+            <div class="field">
+              <div class="label">宿泊日（任意）</div>
+              <input id="caseStayDate" type="date" value="${item.stay_date || ''}">
+            </div>
+            <div class="field">
+              <div class="label">部屋番号（任意）</div>
+              <input id="caseRoomNumber" type="text" value="${item.room_number || ''}">
+            </div>
+          </div>
+          <div class="contact-grid">
+            <div class="field">
+              <div class="label">電話</div>
+              <input id="casePhone" type="tel" value="${item.contact_phone || ''}" placeholder="090-xxxx-xxxx">
+            </div>
+            <div class="field">
+              <div class="label">メール</div>
+              <input id="caseEmail" type="email" value="${item.contact_email || ''}" placeholder="example@example.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-section">
+          <div class="contact-section-title">一致した落とし物</div>
+          ${matchedItem ? `
+            <div class="contact-match-card">
+              <div class="contact-match-head">
+                <div>
+                  <div class="contact-match-title">${matchedItem.id}・${matchedItem.category}</div>
+                  <div class="contact-match-meta">
+                    <span>拾得: ${matchedItem.place}</span>
+                    <span>保管: ${matchedItem.storage}</span>
+                    <span>${matchedPhotoNote}</span>
+                  </div>
+                </div>
+                <div class="actions">
+                  <button class="btn-outline btn-compact" id="openMatchedItem">詳細を開く</button>
+                  <button class="btn-ghost btn-compact" id="unlinkMatchedItem">解除</button>
+                </div>
+              </div>
+              <div class="contact-match-body">
+                <img src="${resolveImage(matchedItem)}" alt="">
+                <div class="contact-meta-row">
+                  <span class="contact-chip">${matchedItem.status}</span>
+                  <span class="contact-chip">期限: ${matchedItem.deadline}</span>
+                  <span class="contact-chip">${daysLabel(matchedItem.daysLeft)}</span>
+                </div>
+              </div>
+            </div>
+          ` : `
+            <div class="contact-empty">まだ一致した落とし物がありません。</div>
+          `}
+          <div class="field">
+            <div class="label">候補検索</div>
+            <div class="input">
+              <span class="icon">🔎</span>
+              <input id="caseMatchSearch" type="text" placeholder="ID・カテゴリ・特徴・拾得場所で検索">
+            </div>
+          </div>
+          <div class="contact-candidate-list" id="caseMatchList"></div>
+        </div>
+
+        <div class="contact-section">
+          <div class="contact-section-title">発送情報</div>
+          <div class="contact-grid">
+            <div class="field">
+              <div class="label">追跡番号</div>
+              <input id="caseTracking" type="text" value="${item.shipping.tracking_number || ''}">
+            </div>
+            <div class="field">
+              <div class="label">発送日</div>
+              <input id="caseShippedAt" type="date" value="${item.shipping.shipped_at || ''}">
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">発送メモ</div>
+            <textarea id="caseShippingNote" class="contact-textarea" placeholder="発送方法や住所確認状況">${item.shipping.shipping_note || ''}</textarea>
+          </div>
+        </div>
+      `;
+
+      const touchCase = () => {
+        item.updated_at = formatTimestamp();
+      };
+
+      const updateListOnly = () => {
+        touchCase();
+        const header = contactDetail.querySelector('.contact-detail-sub');
+        if (header) header.textContent = `最終更新: ${item.updated_at} / 作成: ${item.created_at}`;
+        renderContactList();
+      };
+
+      const caseStatus = document.getElementById('caseStatus');
+      if (caseStatus) caseStatus.addEventListener('change', (e) => {
+        item.status = e.target.value;
+        updateListOnly();
+      });
+      const caseChannel = document.getElementById('caseChannel');
+      if (caseChannel) caseChannel.addEventListener('change', (e) => {
+        item.channel = e.target.value;
+        updateListOnly();
+      });
+      const caseFacility = document.getElementById('caseFacility');
+      if (caseFacility) caseFacility.addEventListener('input', (e) => {
+        item.facility = e.target.value;
+        updateListOnly();
+      });
+      const caseAccount = document.getElementById('caseAccount');
+      if (caseAccount) caseAccount.addEventListener('input', (e) => {
+        item.account = e.target.value;
+        updateListOnly();
+      });
+      const caseFeatureText = document.getElementById('caseFeatureText');
+      if (caseFeatureText) caseFeatureText.addEventListener('input', (e) => {
+        item.feature_text = e.target.value;
+        updateListOnly();
+      });
+      const caseStayDate = document.getElementById('caseStayDate');
+      if (caseStayDate) caseStayDate.addEventListener('input', (e) => {
+        item.stay_date = e.target.value;
+        updateListOnly();
+      });
+      const caseRoomNumber = document.getElementById('caseRoomNumber');
+      if (caseRoomNumber) caseRoomNumber.addEventListener('input', (e) => {
+        item.room_number = e.target.value;
+        updateListOnly();
+      });
+      const casePhone = document.getElementById('casePhone');
+      if (casePhone) casePhone.addEventListener('input', (e) => {
+        item.contact_phone = e.target.value;
+        updateListOnly();
+      });
+      const caseEmail = document.getElementById('caseEmail');
+      if (caseEmail) caseEmail.addEventListener('input', (e) => {
+        item.contact_email = e.target.value;
+        updateListOnly();
+      });
+      const caseTracking = document.getElementById('caseTracking');
+      if (caseTracking) caseTracking.addEventListener('input', (e) => {
+        item.shipping.tracking_number = e.target.value;
+        updateListOnly();
+      });
+      const caseShippedAt = document.getElementById('caseShippedAt');
+      if (caseShippedAt) caseShippedAt.addEventListener('input', (e) => {
+        item.shipping.shipped_at = e.target.value;
+        updateListOnly();
+      });
+      const caseShippingNote = document.getElementById('caseShippingNote');
+      if (caseShippingNote) caseShippingNote.addEventListener('input', (e) => {
+        item.shipping.shipping_note = e.target.value;
+        updateListOnly();
+      });
+
+      const unlinkBtn = document.getElementById('unlinkMatchedItem');
+      if (unlinkBtn) {
+        unlinkBtn.addEventListener('click', () => {
+          item.matched_lost_item_id = '';
+          updateListOnly();
+          renderContactDetail();
+          showToast('一致情報を解除しました');
+        });
+      }
+
+      const openMatchedItem = document.getElementById('openMatchedItem');
+      if (openMatchedItem && matchedItem) {
+        openMatchedItem.addEventListener('click', () => {
+          openDetail(matchedItem);
+        });
+      }
+
+      const saveBtn = document.getElementById('contactSaveBtn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          if (!item.contact_phone && !item.contact_email) {
+            showToast('電話またはメールを入力してください');
+            return;
+          }
+          touchCase();
+          renderContactList();
+          showToast('問い合わせ内容を保存しました');
+        });
+      }
+
+      const matchSearch = document.getElementById('caseMatchSearch');
+      const matchList = document.getElementById('caseMatchList');
+      const renderMatchCandidates = () => {
+        if (!matchList) return;
+        const q = (matchSearch ? matchSearch.value : '').trim().toLowerCase();
+        const candidates = data.filter(entry => {
+          if (!q) return true;
+          const joined = [entry.id, entry.category, entry.place, entry.feature, entry.brand, entry.color, entry.room].filter(Boolean).join(' ').toLowerCase();
+          return joined.includes(q);
+        }).slice(0, 6);
+        matchList.innerHTML = '';
+        if (!candidates.length) {
+          matchList.innerHTML = '<div class="contact-empty">候補が見つかりません。</div>';
+          return;
+        }
+        candidates.forEach(candidate => {
+          const row = document.createElement('div');
+          const selected = item.matched_lost_item_id === candidate.id;
+          row.className = 'contact-candidate';
+          row.innerHTML = `
+            <img src="${resolveImage(candidate)}" alt="">
+            <div>
+              <div class="title">${candidate.id}・${candidate.category}</div>
+              <div class="sub">${candidate.place} / ${candidate.storage}</div>
+              <div class="sub">${candidate.status}・${candidate.deadline}</div>
+            </div>
+            <div>
+              <button class="btn-outline btn-compact" data-match-id="${candidate.id}" ${selected ? 'disabled' : ''}>
+                ${selected ? '紐付け済み' : '紐付け'}
+              </button>
+            </div>
+          `;
+          matchList.appendChild(row);
+        });
+        matchList.querySelectorAll('[data-match-id]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.matchId;
+            item.matched_lost_item_id = id;
+            if (item.status === '対応中') item.status = '一致・返却予定';
+            touchCase();
+            renderContactList();
+            renderContactDetail();
+            showToast('一致した落とし物を紐付けました');
+          });
+        });
+      };
+      if (matchSearch) matchSearch.addEventListener('input', renderMatchCandidates);
+      renderMatchCandidates();
+    }
+
+    if (contactSearch) {
+      contactSearch.addEventListener('input', (e) => {
+        contactSearchQuery = e.target.value.trim().toLowerCase();
+        renderContactList();
+      });
+    }
+
+    contactStatusPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        contactFilterStatus = pill.dataset.status;
+        contactStatusPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        renderContactList();
+      });
+    });
+
+    if (contactNewBtn) {
+      contactNewBtn.addEventListener('click', () => {
+        const newId = nextContactCaseId();
+        const timestamp = formatTimestamp();
+        const freshCase = {
+          id: newId,
+          facility: '花月旅館・本館',
+          account: '',
+          status: '対応中',
+          channel: '電話',
+          feature_text: '',
+          stay_date: '',
+          room_number: '',
+          contact_phone: '',
+          contact_email: '',
+          matched_lost_item_id: '',
+          shipping: { tracking_number: '', shipped_at: '', shipping_note: '' },
+          created_at: timestamp,
+          updated_at: timestamp
+        };
+        contactCases.unshift(freshCase);
+        currentCaseId = freshCase.id;
+        renderContactList();
+        renderContactDetail();
+        showToast('問い合わせケースを作成しました');
+      });
+    }
+
+    renderContactList();
+    renderContactDetail();
 
     // Mobile screens mock
     const mobileScreen = document.getElementById('mobileScreen');
